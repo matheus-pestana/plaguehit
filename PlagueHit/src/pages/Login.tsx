@@ -1,44 +1,61 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, SafeAreaView, StatusBar, ImageBackground, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import React, { useState } from 'react';
+import { Alert, Image, ImageBackground, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { auth } from '../services/firebaseConfig';
+
 
 export default function Login({ navigation }: any) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
 
+  const handleLogin = async () => {
+    if (email === '' || senha === '') {
+      Alert.alert('Erro', 'Preencha todos os campos');
+      return;
+    }
+
+    try {
+      await signInWithEmailAndPassword(auth, email, senha);
+      // O Firebase cuidará do estado de autenticação
+    } catch (error: any) {
+      Alert.alert('Erro de Login', 'E-mail ou senha inválidos');
+    }
+  };
+
   return (
-    <ImageBackground 
-      source={require('../assets/images/home.jpeg')} 
+    <ImageBackground
+      source={require('../assets/images/home.jpeg')}
       style={styles.background}
       resizeMode="cover"
     >
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-      
+
       <SafeAreaView style={styles.safeArea}>
-        <KeyboardAvoidingView 
+        <KeyboardAvoidingView
           style={{ flex: 1, width: '100%' }}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-            
+
             {/* Cabeçalho com o Logo do Chip e Título "Entrar" */}
             <View style={styles.headerContainer}>
-              <Image 
-                source={require('../assets/images/chip.png')} 
-                style={styles.logo} 
-                resizeMode="contain" 
+              <Image
+                source={require('../assets/images/chip.png')}
+                style={styles.logo}
+                resizeMode="contain"
               />
               <Text style={styles.titulo}>Entrar</Text>
             </View>
 
             {/* Início do Formulário */}
             <View style={styles.formContainer}>
-              
+
               {/* Input de E-mail (Caixa Branca Arredondada) */}
               <View style={styles.inputContainer}>
                 <Ionicons name="person-outline" size={20} color="#666" style={styles.icon} />
-                <TextInput 
+                <TextInput
                   style={styles.input}
                   placeholder="E-mail ou Usuário"
                   placeholderTextColor="#666"
@@ -51,11 +68,11 @@ export default function Login({ navigation }: any) {
               {/* Input de Senha (Caixa Branca Arredondada) */}
               <View style={styles.inputContainer}>
                 <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.icon} />
-                <TextInput 
+                <TextInput
                   style={styles.input}
                   placeholder="Senha"
                   placeholderTextColor="#666"
-                  secureTextEntry={!mostrarSenha} 
+                  secureTextEntry={!mostrarSenha}
                   value={senha}
                   onChangeText={setSenha}
                 />
@@ -70,10 +87,9 @@ export default function Login({ navigation }: any) {
               </TouchableOpacity>
 
               {/* Botão de Entrar principal */}
-              <TouchableOpacity 
-                style={styles.botaoEntrar} 
-                activeOpacity={0.7}
-                onPress={() => console.log('Login acionado')} 
+              <TouchableOpacity
+                style={styles.botaoEntrar}
+                onPress={handleLogin}
               >
                 <Text style={styles.textoBotao}>Entrar</Text>
               </TouchableOpacity>
@@ -87,9 +103,9 @@ export default function Login({ navigation }: any) {
 
               {/* Botão do Google */}
               <TouchableOpacity style={styles.botaoGoogle} activeOpacity={0.7}>
-                <Image 
-                  source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg' }} 
-                  style={styles.googleImage} 
+                <Image
+                  source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg' }}
+                  style={styles.googleImage}
                 />
                 <Text style={styles.textoGoogle}>Continuar com Google</Text>
               </TouchableOpacity>
@@ -98,8 +114,7 @@ export default function Login({ navigation }: any) {
 
             {/* Rodapé: Não tem conta? Cadastre-se (Ajustado) */}
             <View style={styles.footerContainer}>
-              <Text style={styles.footerText}>Não tem conta? </Text>
-              <TouchableOpacity onPress={() => console.log('Ir para Cadastro')}>
+              <TouchableOpacity onPress={() => navigation.navigate('Register')}>
                 <Text style={styles.linkText}>Cadastre-se</Text>
               </TouchableOpacity>
             </View>
