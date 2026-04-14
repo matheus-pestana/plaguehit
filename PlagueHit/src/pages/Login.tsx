@@ -1,36 +1,47 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as NavigationBar from 'expo-navigation-bar';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import React, { useState } from 'react';
-import { Alert, Image, ImageBackground, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Alert, Image, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { auth } from '../services/firebaseConfig';
-
 
 export default function Login({ navigation }: any) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
 
+  useEffect(() => {
+    const configureAndroidBars = async () => {
+      if (Platform.OS === 'android') {
+        await NavigationBar.setBackgroundColorAsync("#6C9953");
+        await NavigationBar.setButtonStyleAsync("light");
+      }
+    };
+    configureAndroidBars();
+  }, []);
+
   const handleLogin = async () => {
     if (email === '' || senha === '') {
       Alert.alert('Erro', 'Preencha todos os campos');
       return;
     }
-
     try {
       await signInWithEmailAndPassword(auth, email, senha);
-      // O Firebase cuidará do estado de autenticação
     } catch (error: any) {
       Alert.alert('Erro de Login', 'E-mail ou senha inválidos');
     }
   };
 
   return (
-    <ImageBackground
-      source={require('../assets/images/home.jpeg')}
-      style={styles.background}
-      resizeMode="cover"
-    >
-      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+    <View style={styles.container}>
+      {/* barStyle alterado para light-content para melhor contraste no verde */}
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+
+      <Image
+        source={require('../assets/images/circuit2.png')}
+        resizeMode='cover'
+        style={styles.background}
+      />
 
       <SafeAreaView style={styles.safeArea}>
         <KeyboardAvoidingView
@@ -39,7 +50,6 @@ export default function Login({ navigation }: any) {
         >
           <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
 
-            {/* Cabeçalho com o Logo do Chip e Título "Entrar" */}
             <View style={styles.headerContainer}>
               <Image
                 source={require('../assets/images/chip.png')}
@@ -49,10 +59,7 @@ export default function Login({ navigation }: any) {
               <Text style={styles.titulo}>Entrar</Text>
             </View>
 
-            {/* Início do Formulário */}
             <View style={styles.formContainer}>
-
-              {/* Input de E-mail (Caixa Branca Arredondada) */}
               <View style={styles.inputContainer}>
                 <Ionicons name="person-outline" size={20} color="#666" style={styles.icon} />
                 <TextInput
@@ -65,7 +72,6 @@ export default function Login({ navigation }: any) {
                 />
               </View>
 
-              {/* Input de Senha (Caixa Branca Arredondada) */}
               <View style={styles.inputContainer}>
                 <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.icon} />
                 <TextInput
@@ -76,7 +82,6 @@ export default function Login({ navigation }: any) {
                   value={senha}
                   onChangeText={setSenha}
                 />
-                {/* Botão opcional para mostrar/esconder senha, caso queira manter a funcionalidade */}
                 <TouchableOpacity onPress={() => setMostrarSenha(!mostrarSenha)}>
                   <Ionicons name={mostrarSenha ? "eye-outline" : "eye-off-outline"} size={22} color="#666" />
                 </TouchableOpacity>
@@ -86,7 +91,6 @@ export default function Login({ navigation }: any) {
                 <Text style={styles.forgotPasswordText}>Esqueceu a senha?</Text>
               </TouchableOpacity>
 
-              {/* Botão de Entrar principal */}
               <TouchableOpacity
                 style={styles.botaoEntrar}
                 onPress={handleLogin}
@@ -94,71 +98,84 @@ export default function Login({ navigation }: any) {
                 <Text style={styles.textoBotao}>Entrar</Text>
               </TouchableOpacity>
 
-              {/* Divisor "ou entrar com:" */}
               <View style={styles.dividerContainer}>
                 <View style={styles.line} />
                 <Text style={styles.dividerText}>ou entrar com:</Text>
                 <View style={styles.line} />
               </View>
 
-              {/* Botão do Google */}
               <TouchableOpacity style={styles.botaoGoogle} activeOpacity={0.7}>
                 <Image
-                  source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg' }}
+                  source={{ uri: 'https://www.citypng.com/public/uploads/preview/google-logo-icon-gsuite-hd-701751694791470gzbayltphh.png' }}
                   style={styles.googleImage}
                 />
                 <Text style={styles.textoGoogle}>Continuar com Google</Text>
               </TouchableOpacity>
-
             </View>
 
-            {/* Rodapé: Não tem conta? Cadastre-se (Ajustado) */}
             <View style={styles.footerContainer}>
               <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                <Text style={styles.linkText}>Cadastre-se</Text>
+                <Text style={styles.linkText}>Não tem uma conta? Cadastre-se</Text>
               </TouchableOpacity>
             </View>
 
           </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
-    </ImageBackground>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  background: {
+
+  container: {
     flex: 1,
-    width: '100%',
+    backgroundColor: "#6C9953",
   },
+
   safeArea: {
     flex: 1,
   },
+
   scrollContainer: {
     flexGrow: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-evenly',
     paddingHorizontal: 35,
-    paddingTop: 40,
-    paddingBottom: 20,
   },
+
   headerContainer: {
     alignItems: 'center',
-    marginBottom: 40,
+    justifyContent: 'center',
+    height: 150,
+    width: '100%',
   },
+
+  background: {
+    position: 'absolute',
+    top: 0,
+    // left: 0,
+    // right: 0,
+    opacity: 0.2,
+  },
+
   logo: {
-    width: 100,
-    height: 100,
-    marginBottom: 15,
+    position: 'absolute',
+    width: 150,
+    height: 150,
   },
+
   titulo: {
     fontSize: 32,
     color: '#1A2F1A',
     fontWeight: '900',
+    top: 90,
   },
+
   formContainer: {
     width: '100%',
   },
+
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -170,23 +187,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     height: 55,
   },
+
   icon: {
     marginRight: 10,
   },
+
   input: {
     flex: 1,
     fontSize: 16,
     color: '#333',
     height: '100%',
   },
+
   forgotPassword: {
     alignSelf: 'flex-end',
     marginBottom: 25,
   },
+
   forgotPasswordText: {
-    color: '#6e8f5e',
+    color: 'white',
+    textDecorationLine: 'underline',
     fontSize: 14,
   },
+
   botaoEntrar: {
     backgroundColor: '#b3d19f',
     paddingVertical: 15,
@@ -194,27 +217,32 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 30,
   },
+
   textoBotao: {
     fontSize: 20,
     color: '#F4F9F1',
     fontWeight: 'bold',
   },
+
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 25,
   },
+
   line: {
     flex: 1,
     height: 1,
-    backgroundColor: '#6e8f5e',
-    opacity: 0.5,
+    backgroundColor: 'white',
+    opacity: 1,
   },
+
   dividerText: {
     color: '#3a532d',
     paddingHorizontal: 10,
     fontSize: 14,
   },
+
   botaoGoogle: {
     flexDirection: 'row',
     backgroundColor: '#FFFFFF',
@@ -226,30 +254,34 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginBottom: 40,
   },
+
   googleImage: {
     width: 18,
     height: 18,
     marginRight: 10,
   },
+
   textoGoogle: {
     fontSize: 14,
     color: '#333',
     fontWeight: '600',
   },
+
   footerContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 40,
-    marginBottom: 10,
   },
+
   footerText: {
     color: '#1A2F1A',
     fontSize: 15,
     fontWeight: '500',
   },
+
   linkText: {
-    color: '#6e8f5e',
+    color: 'white',
     fontSize: 15,
     textDecorationLine: 'underline',
   },
+
 });
