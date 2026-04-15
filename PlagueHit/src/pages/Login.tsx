@@ -1,14 +1,24 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as Google from 'expo-auth-session/providers/google';
 import * as NavigationBar from 'expo-navigation-bar';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import * as WebBrowser from 'expo-web-browser';
+import { GoogleAuthProvider, signInWithCredential, signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
 import { Alert, Image, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { auth } from '../services/firebaseConfig';
+
+WebBrowser.maybeCompleteAuthSession();
 
 export default function Login({ navigation }: any) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [mostrarSenha, setMostrarSenha] = useState(false);
+
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    iosClientId: 'SEU_CLIENT_ID_IOS.apps.googleusercontent.com',
+    androidClientId: 'SEU_CLIENT_ID_ANDROID.apps.googleusercontent.com',
+    webClientId: '880310846119-39udf2v1n5is08bdaptv68m1jocki20f.apps.googleusercontent.com',
+  });
 
   useEffect(() => {
     const configureAndroidBars = async () => {
@@ -19,6 +29,21 @@ export default function Login({ navigation }: any) {
     };
     configureAndroidBars();
   }, []);
+
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { id_token } = response.params;
+      const credential = GoogleAuthProvider.credential(id_token);
+
+      signInWithCredential(auth, credential)
+        .then(() => {
+          // Navegação ou lógica pós-login
+        })
+        .catch((error) => {
+          Alert.alert('Erro', 'Falha na autenticação com Google');
+        });
+    }
+  }, [response]);
 
   const handleLogin = async () => {
     if (email === '' || senha === '') {
@@ -34,7 +59,6 @@ export default function Login({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      {/* barStyle alterado para light-content para melhor contraste no verde */}
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
 
       <Image
@@ -104,7 +128,12 @@ export default function Login({ navigation }: any) {
                 <View style={styles.line} />
               </View>
 
-              <TouchableOpacity style={styles.botaoGoogle} activeOpacity={0.7}>
+              <TouchableOpacity
+                style={styles.botaoGoogle}
+                activeOpacity={0.7}
+                disabled={!request}
+                onPress={() => promptAsync()}
+              >
                 <Image
                   source={{ uri: 'https://www.citypng.com/public/uploads/preview/google-logo-icon-gsuite-hd-701751694791470gzbayltphh.png' }}
                   style={styles.googleImage}

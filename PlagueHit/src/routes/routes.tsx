@@ -1,5 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import React from 'react';
+import Dashboard from '../pages/Dashboard';
 import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
@@ -10,7 +11,6 @@ export default function StackRoutes({ user }: any) {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {user ? (
-        // Rotas para usuário logado
         <Stack.Screen name="Dashboard" component={Dashboard} />
       ) : (
         // Rotas para usuário deslogado
