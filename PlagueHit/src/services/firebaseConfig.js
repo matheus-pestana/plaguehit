@@ -5,6 +5,7 @@ import {
     getReactNativePersistence,
     initializeAuth
 } from "firebase/auth";
+import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC3C_fQqB8kqIkh-9HS-9JOEpA0w6YMwXQ",
@@ -13,10 +14,10 @@ const firebaseConfig = {
   storageBucket: "plaguehit.firebasestorage.app",
   messagingSenderId: "628377698907",
   appId: "1:628377698907:web:830c9011b8bda8a053357e",
-  measurementId: "G-X99JKNJYZ1"
+  measurementId: "G-X99JKNJYZ1",
+  databaseURL: "https://plaguehit-default-rtdb.firebaseio.com"
 };
 
-// Inicializa o App
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 export const auth = (() => {
@@ -30,3 +31,5 @@ export const auth = (() => {
     persistence: getReactNativePersistence(ReactNativeAsyncStorage)
   });
 })();
+
+export const database = getDatabase(app);
