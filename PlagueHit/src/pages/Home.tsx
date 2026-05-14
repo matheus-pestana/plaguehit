@@ -9,7 +9,9 @@ import {
   View,
 } from "react-native";
 
+
 export default function Home({ navigation }: any) {
+
   return (
     <View style={styles.container}>
       <StatusBar
@@ -61,7 +63,6 @@ export default function Home({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
-
   container: {
     flex: 1,
     width: "100%",
@@ -128,7 +129,7 @@ const styles = StyleSheet.create({
     color: "#A6C995",
     fontWeight: "bold",
   },
-  
+
   botaoEntrar: {
     backgroundColor: "#d6e5d0",
     paddingVertical: 12,
