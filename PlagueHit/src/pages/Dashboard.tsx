@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,28 +9,31 @@ import {
   ScrollView,
   TouchableOpacity,
   Modal,
-  Pressable
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { ref, onValue } from 'firebase/database';
-import { database } from '../services/firebaseConfig';
+  Pressable,
+  Alert,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { ref, onValue } from "firebase/database";
+import { database, auth } from "../services/firebaseConfig";
+import { signOut } from "firebase/auth";
+import * as SecureStore from "expo-secure-store";
 
-// Interface atualizada com a nova chave do Firebase
 interface AnaliseIA {
   confianca: string;
   diagnostico: string;
   data_hora: string;
-  url_imagem: string; 
+  url_imagem: string;
 }
 
-export default function Dashboard() {
+export default function Dashboard({ navigation }: any) {
   const [analise, setAnalise] = useState<AnaliseIA | null>(null);
   const [loading, setLoading] = useState(true);
-  const [modalVisible, setModalVisible] = useState(false); // Estado para o Modal
+  const [modalVisible, setModalVisible] = useState(false);
+  const [biometriaDisponivel, setBiometriaDisponivel] = useState(false);
 
   useEffect(() => {
-    const analiseRef = ref(database, 'status_atual');
-    
+    const analiseRef = ref(database, "status_atual");
+
     const unsubscribe = onValue(analiseRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -42,44 +45,51 @@ export default function Dashboard() {
     return () => unsubscribe();
   }, []);
 
-  const isSaudavel = analise?.diagnostico.toLowerCase().includes('saudável');
+  const isSaudavel = analise?.diagnostico.toLowerCase().includes("saudável");
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Background Decorativo */}
-      <Image 
-        source={require('../assets/images/circuit1.png')} 
-        style={styles.circuitBackground} 
+      <Image
+        source={require("../assets/images/circuit1.png")}
+        style={styles.circuitBackground}
       />
-      
+
       <View style={styles.header}>
         <Text style={styles.title}>PlagueHit</Text>
-        <Ionicons name="notifications-outline" size={24} color="#39FF14" />
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          {/* Botão para ir ao Perfil */}
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Profile")}
+            style={{ marginRight: 15 }}
+          >
+            <Ionicons name="person-circle-outline" size={28} color="#39FF14" />
+          </TouchableOpacity>
+
+          <Ionicons name="notifications-outline" size={24} color="#39FF14" />
+        </View>
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.centralContainer}>
-          <Image 
-            source={require('../assets/images/chip.png')} 
-            style={styles.chipIcon} 
+          <Image
+            source={require("../assets/images/chip.png")}
+            style={styles.chipIcon}
           />
-          
+
           <View style={styles.statusContainer}>
             <Text style={styles.statusTitle}>ANÁLISE EM TEMPO REAL</Text>
-            
+
             {loading ? (
               <ActivityIndicator size="large" color="#39FF14" />
             ) : analise ? (
               <View style={styles.resultDetails}>
-                <Ionicons 
-                  name={isSaudavel ? "checkmark-done-circle" : "alert-circle"} 
-                  size={60} 
-                  color={isSaudavel ? "#39FF14" : "#FF3B30"} 
+                <Ionicons
+                  name={isSaudavel ? "checkmark-done-circle" : "alert-circle"}
+                  size={60}
+                  color={isSaudavel ? "#39FF14" : "#FF3B30"}
                 />
-                
-                <Text style={styles.diagnosisName}>
-                  {analise.diagnostico}
-                </Text>
+
+                <Text style={styles.diagnosisName}>{analise.diagnostico}</Text>
 
                 <View style={styles.dataGrid}>
                   <View style={styles.dataItem}>
@@ -92,9 +102,8 @@ export default function Dashboard() {
                   </View>
                 </View>
 
-                {/* Botão para abrir o Modal se houver URL da imagem */}
                 {analise.url_imagem && (
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={styles.viewImageButton}
                     onPress={() => setModalVisible(true)}
                   >
@@ -109,15 +118,14 @@ export default function Dashboard() {
           </View>
         </View>
 
-        {/* Modal para exibição da imagem */}
         <Modal
           animationType="fade"
           transparent={true}
           visible={modalVisible}
           onRequestClose={() => setModalVisible(false)}
         >
-          <Pressable 
-            style={styles.modalOverlay} 
+          <Pressable
+            style={styles.modalOverlay}
             onPress={() => setModalVisible(false)}
           >
             <View style={styles.modalContent}>
@@ -127,26 +135,24 @@ export default function Dashboard() {
                   <Ionicons name="close" size={28} color="#FFF" />
                 </TouchableOpacity>
               </View>
-              
+
               {analise?.url_imagem ? (
-                <Image 
-                  source={{ uri: analise.url_imagem }} 
+                <Image
+                  source={{ uri: analise.url_imagem }}
                   style={styles.analyzedImage}
                   resizeMode="contain"
                 />
               ) : (
                 <ActivityIndicator color="#39FF14" />
               )}
-              
-              <Text style={styles.imageTimestamp}>
-                Sincronizado via AWS S3
-              </Text>
+
+              <Text style={styles.imageTimestamp}>Sincronizado via AWS S3</Text>
             </View>
           </Pressable>
         </Modal>
 
         <View style={styles.footerInfo}>
-           <Text style={styles.footerText}>Status do Sistema: Operacional</Text>
+          <Text style={styles.footerText}>Status do Sistema: Operacional</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -154,80 +160,80 @@ export default function Dashboard() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#050505' },
+  container: { flex: 1, backgroundColor: "#050505" },
   scrollContent: { paddingBottom: 40 },
   circuitBackground: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
-    width: '100%',
+    width: "100%",
     height: 150,
     opacity: 0.1,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     padding: 25,
     paddingTop: 50,
   },
   title: {
     fontSize: 28,
-    fontWeight: '900',
-    color: '#39FF14',
+    fontWeight: "900",
+    color: "#39FF14",
     letterSpacing: 2,
   },
-  centralContainer: { alignItems: 'center', marginTop: 10 },
+  centralContainer: { alignItems: "center", marginTop: 10 },
   chipIcon: { width: 60, height: 60, marginBottom: 20 },
   statusContainer: {
-    backgroundColor: '#0A0A0A',
-    width: '90%',
+    backgroundColor: "#0A0A0A",
+    width: "90%",
     padding: 25,
     borderRadius: 30,
     borderWidth: 1,
-    borderColor: '#1A1A1A',
-    alignItems: 'center',
+    borderColor: "#1A1A1A",
+    alignItems: "center",
   },
   statusTitle: {
-    color: '#333',
+    color: "#333",
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     letterSpacing: 3,
     marginBottom: 20,
   },
-  resultDetails: { alignItems: 'center', width: '100%' },
+  resultDetails: { alignItems: "center", width: "100%" },
   diagnosisName: {
-    color: '#FFF',
+    color: "#FFF",
     fontSize: 22,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: 10,
-    textAlign: 'center',
+    textAlign: "center",
   },
   dataGrid: {
-    width: '100%',
+    width: "100%",
     marginTop: 25,
     borderTopWidth: 1,
-    borderTopColor: '#151515',
+    borderTopColor: "#151515",
   },
   dataItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     paddingVertical: 12,
   },
-  label: { color: '#555', fontSize: 13 },
-  value: { color: '#AAA', fontSize: 13 },
-  
+  label: { color: "#555", fontSize: 13 },
+  value: { color: "#AAA", fontSize: 13 },
+
   // Estilo do Botão
   viewImageButton: {
-    flexDirection: 'row',
-    backgroundColor: '#39FF14',
+    flexDirection: "row",
+    backgroundColor: "#39FF14",
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 12,
     marginTop: 25,
-    alignItems: 'center',
+    alignItems: "center",
   },
   viewImageText: {
-    color: '#000',
-    fontWeight: '900',
+    color: "#000",
+    fontWeight: "900",
     fontSize: 14,
     marginLeft: 10,
   },
@@ -235,43 +241,60 @@ const styles = StyleSheet.create({
   // Estilo do Modal
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.9)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "rgba(0,0,0,0.9)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalContent: {
-    width: '90%',
-    backgroundColor: '#111',
+    width: "90%",
+    backgroundColor: "#111",
     borderRadius: 20,
     padding: 20,
-    alignItems: 'center',
+    alignItems: "center",
     borderWidth: 1,
-    borderColor: '#333',
+    borderColor: "#333",
   },
   modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
     marginBottom: 20,
   },
   modalTitle: {
-    color: '#39FF14',
+    color: "#39FF14",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   analyzedImage: {
-    width: '100%',
+    width: "100%",
     height: 300,
     borderRadius: 10,
-    backgroundColor: '#000',
+    backgroundColor: "#000",
   },
   imageTimestamp: {
-    color: '#444',
+    color: "#444",
     fontSize: 11,
     marginTop: 15,
   },
-  
-  noDataText: { color: '#333' },
-  footerInfo: { marginTop: 30, alignItems: 'center' },
-  footerText: { color: '#222', fontSize: 10, fontWeight: 'bold' }
+
+  noDataText: { color: "#333" },
+  footerInfo: { marginTop: 30, alignItems: "center" },
+  footerText: { color: "#222", fontSize: 10, fontWeight: "bold" },
+
+  botaoLogout: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#D9534F", // Vermelho para indicar ação de saída
+    paddingVertical: 12,
+    borderRadius: 30,
+    marginTop: 20,
+    width: "100%",
+  },
+  textoLogout: {
+    color: "#FFF",
+    fontSize: 16,
+    fontWeight: "bold",
+    marginLeft: 10,
+  },
 });
