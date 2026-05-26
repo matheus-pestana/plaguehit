@@ -1,13 +1,17 @@
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 import * as Google from "expo-auth-session/providers/google";
+import * as LocalAuthentication from "expo-local-authentication";
 import * as NavigationBar from "expo-navigation-bar";
+import * as SecureStore from "expo-secure-store";
 import * as WebBrowser from "expo-web-browser";
 import {
   GoogleAuthProvider,
   signInWithCredential,
   signInWithEmailAndPassword,
+  signInWithPopup
 } from "firebase/auth";
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Alert,
   Image,
@@ -22,12 +26,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useFocusEffect } from "@react-navigation/native";
 import { auth } from "../services/firebaseConfig";
-import * as LocalAuthentication from "expo-local-authentication";
-import * as SecureStore from "expo-secure-store";
 
-WebBrowser.maybeCompleteAuthSession();
+if (Platform.OS !== "web") {
+  WebBrowser.maybeCompleteAuthSession();
+}
 
 export default function Login({ navigation }: any) {
   const [email, setEmail] = useState("");
@@ -99,7 +102,7 @@ export default function Login({ navigation }: any) {
     iosClientId: "SEU_CLIENT_ID_IOS.apps.googleusercontent.com",
     androidClientId: "SEU_CLIENT_ID_ANDROID.apps.googleusercontent.com",
     webClientId:
-      "880310846119-39udf2v1n5is08bdaptv68m1jocki20f.apps.googleusercontent.com",
+      "628377698907-sa7iouqkim5dbnbrkmn7e4qt0lnevmmj.apps.googleusercontent.com",
   });
 
   useEffect(() => {
@@ -114,16 +117,44 @@ export default function Login({ navigation }: any) {
 
   useEffect(() => {
     if (response?.type === "success") {
-      const { id_token } = response.params;
-      const credential = GoogleAuthProvider.credential(id_token);
+      // Busca o token no objeto authentication (padrão mais recente do Expo) 
+      // ou faz o fallback para o params caso esteja rodando em uma versão legada
+      const idToken = response.authentication?.idToken || response.params?.id_token;
+
+      if (!idToken) {
+        Alert.alert("Erro", "Token de autenticação não recebido do Google.");
+        return;
+      }
+
+      const credential = GoogleAuthProvider.credential(idToken);
 
       signInWithCredential(auth, credential)
-        .then(() => {})
+        .then(() => {
+          // Mantemos vazio para evitar a tela branca, o App.tsx fará o redirecionamento
+        })
         .catch((error) => {
-          Alert.alert("Erro", "Falha na autenticação com Google");
+          console.error("Erro no Firebase:", error);
+          Alert.alert("Erro", "Falha ao registrar credencial no Firebase.");
         });
     }
   }, [response]);
+
+  const handleGoogleLogin = async () => {
+    if (Platform.OS === "web") {
+      // Fluxo específico e seguro para a WEB
+      try {
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+        // Sucesso! O App.tsx fará a navegação automaticamente para o Dashboard
+      } catch (error) {
+        console.error("Erro no Google Web:", error);
+        Alert.alert("Erro", "Falha na autenticação web com Google.");
+      }
+    } else {
+      // Fluxo para Android e iOS usando o Expo Auth Session
+      promptAsync();
+    }
+  };
 
   const handleLogin = async () => {
     if (email === "" || senha === "") {
@@ -216,7 +247,7 @@ export default function Login({ navigation }: any) {
                 </TouchableOpacity>
               </View>
 
-              <TouchableOpacity style={styles.forgotPassword}>
+              <TouchableOpacity style={styles.forgotPassword} onPress={() => navigation.navigate("ResetPassword")}>
                 <Text style={styles.forgotPasswordText}>Esqueceu a senha?</Text>
               </TouchableOpacity>
 
@@ -236,8 +267,7 @@ export default function Login({ navigation }: any) {
               <TouchableOpacity
                 style={styles.botaoGoogle}
                 activeOpacity={0.7}
-                disabled={!request}
-                onPress={() => promptAsync()}
+                onPress={handleGoogleLogin}
               >
                 <Image
                   source={{
