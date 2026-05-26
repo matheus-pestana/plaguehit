@@ -1,22 +1,19 @@
-import React, { useState, useEffect } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import { onValue, ref } from "firebase/database";
+import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  SafeAreaView,
   ActivityIndicator,
-  ScrollView,
-  TouchableOpacity,
+  Image,
   Modal,
   Pressable,
-  Alert,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { ref, onValue } from "firebase/database";
-import { database, auth } from "../services/firebaseConfig";
-import { signOut } from "firebase/auth";
-import * as SecureStore from "expo-secure-store";
+import { database } from "../services/firebaseConfig";
 
 interface AnaliseIA {
   confianca: string;
@@ -29,7 +26,6 @@ export default function Dashboard({ navigation }: any) {
   const [analise, setAnalise] = useState<AnaliseIA | null>(null);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
-  const [biometriaDisponivel, setBiometriaDisponivel] = useState(false);
 
   useEffect(() => {
     const analiseRef = ref(database, "status_atual");
@@ -57,7 +53,21 @@ export default function Dashboard({ navigation }: any) {
       <View style={styles.header}>
         <Text style={styles.title}>PlagueHit</Text>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          {/* Botão para ir ao Perfil */}
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate("History")}
+            style={{ marginRight: 15 }}
+          >
+            <Ionicons name="time-outline" size={26} color="#39FF14" />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => navigation.navigate("Chat")}
+            style={{ marginRight: 15 }}
+          >
+            <Ionicons name="chatbubbles-outline" size={26} color="#39FF14" />
+          </TouchableOpacity>
+
           <TouchableOpacity
             onPress={() => navigation.navigate("Profile")}
             style={{ marginRight: 15 }}
