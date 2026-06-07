@@ -1,10 +1,16 @@
 import { Ionicons } from '@expo/vector-icons';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react';
-import { Alert, ImageBackground, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, ImageBackground, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Colors } from "../../constants/theme";
+import { useColorScheme } from "../../hooks/use-color-scheme";
 import { auth } from '../services/firebaseConfig';
 
 export default function Register({ navigation }: any) {
+  const colorScheme = useColorScheme() ?? 'light';
+  const theme = Colors[colorScheme];
+  const styles = createStyles(theme);
+
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
@@ -33,7 +39,7 @@ export default function Register({ navigation }: any) {
       style={styles.background}
       resizeMode="cover"
     >
-      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+      <View style={[styles.overlay]} />
       <SafeAreaView style={styles.safeArea}>
         <KeyboardAvoidingView 
           style={{ flex: 1, width: '100%' }}
@@ -44,10 +50,11 @@ export default function Register({ navigation }: any) {
 
             <View style={styles.formContainer}>
               <View style={styles.inputContainer}>
-                <Ionicons name="mail-outline" size={20} color="#666" style={styles.icon} />
+                <Ionicons name="mail-outline" size={20} color={theme.icon} style={styles.icon} />
                 <TextInput 
                   style={styles.input}
                   placeholder="E-mail"
+                  placeholderTextColor={theme.textSecondary}
                   value={email}
                   onChangeText={setEmail}
                   autoCapitalize="none"
@@ -55,10 +62,11 @@ export default function Register({ navigation }: any) {
               </View>
 
               <View style={styles.inputContainer}>
-                <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.icon} />
+                <Ionicons name="lock-closed-outline" size={20} color={theme.icon} style={styles.icon} />
                 <TextInput 
                   style={styles.input}
                   placeholder="Senha"
+                  placeholderTextColor={theme.textSecondary}
                   secureTextEntry
                   value={senha}
                   onChangeText={setSenha}
@@ -66,10 +74,11 @@ export default function Register({ navigation }: any) {
               </View>
 
               <View style={styles.inputContainer}>
-                <Ionicons name="checkmark-circle-outline" size={20} color="#666" style={styles.icon} />
+                <Ionicons name="checkmark-circle-outline" size={20} color={theme.icon} style={styles.icon} />
                 <TextInput 
                   style={styles.input}
                   placeholder="Confirmar Senha"
+                  placeholderTextColor={theme.textSecondary}
                   secureTextEntry
                   value={confirmarSenha}
                   onChangeText={setConfirmarSenha}
@@ -91,18 +100,22 @@ export default function Register({ navigation }: any) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: typeof Colors.light) => StyleSheet.create({
   background: { flex: 1 },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: theme.backgroundPrimary,
+  },
   safeArea: { flex: 1 },
   scrollContainer: { flexGrow: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 35 },
-  titulo: { fontSize: 32, color: '#1A2F1A', fontWeight: '900', marginBottom: 40 },
+  titulo: { fontSize: 32, color: theme.textOnPrimary, fontWeight: '900', marginBottom: 40 },
   formContainer: { width: '100%' },
-  inputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFF', borderRadius: 12, borderWidth: 1, borderColor: '#1A2F1A', marginBottom: 15, paddingHorizontal: 15, height: 55 },
+  inputContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: theme.card, borderRadius: 12, borderWidth: 1, borderColor: theme.border, marginBottom: 15, paddingHorizontal: 15, height: 55 },
   icon: { marginRight: 10 },
-  input: { flex: 1, fontSize: 16 },
-  botao: { backgroundColor: '#b3d19f', paddingVertical: 15, borderRadius: 30, alignItems: 'center', marginTop: 20 },
-  textoBotao: { fontSize: 20, color: '#F4F9F1', fontWeight: 'bold' },
+  input: { flex: 1, fontSize: 16, color: theme.text },
+  botao: { backgroundColor: theme.buttonBackground, borderWidth: theme.buttonBackground === '#1A1A1A' ? 1 : 0, borderColor: theme.border, paddingVertical: 15, borderRadius: 30, alignItems: 'center', marginTop: 20 },
+  textoBotao: { fontSize: 20, color: theme.buttonText, fontWeight: 'bold' },
   footer: { marginTop: 30, alignItems: 'center' },
-  footerText: { fontSize: 15, color: '#1A2F1A' },
-  linkText: { color: '#6e8f5e', fontWeight: 'bold', textDecorationLine: 'underline' }
+  footerText: { fontSize: 15, color: theme.textOnPrimary },
+  linkText: { color: theme.tint, fontWeight: 'bold', textDecorationLine: 'underline' }
 });

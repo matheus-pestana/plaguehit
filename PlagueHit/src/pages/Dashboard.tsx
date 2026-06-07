@@ -13,6 +13,8 @@ import {
   TouchableOpacity,
   View
 } from "react-native";
+import { Colors } from "../../constants/theme";
+import { useColorScheme } from "../../hooks/use-color-scheme";
 import { database } from "../services/firebaseConfig";
 
 interface AnaliseIA {
@@ -23,6 +25,10 @@ interface AnaliseIA {
 }
 
 export default function Dashboard({ navigation }: any) {
+  const colorScheme = useColorScheme() ?? 'light';
+  const theme = Colors[colorScheme];
+  const styles = createStyles(theme);
+
   const [analise, setAnalise] = useState<AnaliseIA | null>(null);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
@@ -45,6 +51,7 @@ export default function Dashboard({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.container}>
+
       <Image
         source={require("../assets/images/circuit1.png")}
         style={styles.circuitBackground}
@@ -58,24 +65,23 @@ export default function Dashboard({ navigation }: any) {
             onPress={() => navigation.navigate("History")}
             style={{ marginRight: 15 }}
           >
-            <Ionicons name="time-outline" size={26} color="#39FF14" />
+            <Ionicons name="time-outline" size={26} color={theme.tint} />
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => navigation.navigate("Chat")}
             style={{ marginRight: 15 }}
           >
-            <Ionicons name="chatbubbles-outline" size={26} color="#39FF14" />
+            <Ionicons name="chatbubbles-outline" size={26} color={theme.tint} />
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => navigation.navigate("Profile")}
             style={{ marginRight: 15 }}
           >
-            <Ionicons name="person-circle-outline" size={28} color="#39FF14" />
+            <Ionicons name="person-circle-outline" size={28} color={theme.tint} />
           </TouchableOpacity>
 
-          <Ionicons name="notifications-outline" size={24} color="#39FF14" />
         </View>
       </View>
 
@@ -90,13 +96,13 @@ export default function Dashboard({ navigation }: any) {
             <Text style={styles.statusTitle}>ANÁLISE EM TEMPO REAL</Text>
 
             {loading ? (
-              <ActivityIndicator size="large" color="#39FF14" />
+              <ActivityIndicator size="large" color={theme.tint} />
             ) : analise ? (
               <View style={styles.resultDetails}>
                 <Ionicons
                   name={isSaudavel ? "checkmark-done-circle" : "alert-circle"}
                   size={60}
-                  color={isSaudavel ? "#39FF14" : "#FF3B30"}
+                  color={isSaudavel ? theme.statusIcon : theme.danger}
                 />
 
                 <Text style={styles.diagnosisName}>{analise.diagnostico}</Text>
@@ -117,7 +123,7 @@ export default function Dashboard({ navigation }: any) {
                     style={styles.viewImageButton}
                     onPress={() => setModalVisible(true)}
                   >
-                    <Ionicons name="image-outline" size={20} color="#000" />
+                    <Ionicons name="image-outline" size={20} color={theme.background} />
                     <Text style={styles.viewImageText}>VER IMAGEM</Text>
                   </TouchableOpacity>
                 )}
@@ -142,7 +148,7 @@ export default function Dashboard({ navigation }: any) {
               <View style={styles.modalHeader}>
                 <Text style={styles.modalTitle}>Captura da Análise</Text>
                 <TouchableOpacity onPress={() => setModalVisible(false)}>
-                  <Ionicons name="close" size={28} color="#FFF" />
+                  <Ionicons name="close" size={28} color={theme.text} />
                 </TouchableOpacity>
               </View>
 
@@ -153,7 +159,7 @@ export default function Dashboard({ navigation }: any) {
                   resizeMode="contain"
                 />
               ) : (
-                <ActivityIndicator color="#39FF14" />
+                <ActivityIndicator color={theme.tint} />
               )}
 
               <Text style={styles.imageTimestamp}>Sincronizado via AWS S3</Text>
@@ -169,8 +175,8 @@ export default function Dashboard({ navigation }: any) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#050505" },
+const createStyles = (theme: typeof Colors.light) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.background },
   scrollContent: { paddingBottom: 40 },
   circuitBackground: {
     position: "absolute",
@@ -188,22 +194,22 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "900",
-    color: "#39FF14",
+    color: theme.tint,
     letterSpacing: 2,
   },
   centralContainer: { alignItems: "center", marginTop: 10 },
   chipIcon: { width: 60, height: 60, marginBottom: 20 },
   statusContainer: {
-    backgroundColor: "#0A0A0A",
+    backgroundColor: theme.card,
     width: "90%",
     padding: 25,
     borderRadius: 30,
     borderWidth: 1,
-    borderColor: "#1A1A1A",
+    borderColor: theme.border,
     alignItems: "center",
   },
   statusTitle: {
-    color: "#333",
+    color: theme.textSecondary,
     fontSize: 10,
     fontWeight: "bold",
     letterSpacing: 3,
@@ -211,7 +217,7 @@ const styles = StyleSheet.create({
   },
   resultDetails: { alignItems: "center", width: "100%" },
   diagnosisName: {
-    color: "#FFF",
+    color: theme.text,
     fontSize: 22,
     fontWeight: "bold",
     marginTop: 10,
@@ -221,20 +227,18 @@ const styles = StyleSheet.create({
     width: "100%",
     marginTop: 25,
     borderTopWidth: 1,
-    borderTopColor: "#151515",
+    borderTopColor: theme.divider,
   },
   dataItem: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: 12,
   },
-  label: { color: "#555", fontSize: 13 },
-  value: { color: "#AAA", fontSize: 13 },
-
-  // Estilo do Botão
+  label: { color: theme.textSecondary, fontSize: 13 },
+  value: { color: theme.textSecondary, fontSize: 13 },
   viewImageButton: {
     flexDirection: "row",
-    backgroundColor: "#39FF14",
+    backgroundColor: theme.tint,
     paddingVertical: 12,
     paddingHorizontal: 25,
     borderRadius: 12,
@@ -242,13 +246,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   viewImageText: {
-    color: "#000",
+    color: theme.background,
     fontWeight: "900",
     fontSize: 14,
     marginLeft: 10,
   },
-
-  // Estilo do Modal
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.9)",
@@ -257,12 +259,12 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: "90%",
-    backgroundColor: "#111",
+    backgroundColor: theme.card,
     borderRadius: 20,
     padding: 20,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#333",
+    borderColor: theme.border,
   },
   modalHeader: {
     flexDirection: "row",
@@ -271,7 +273,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   modalTitle: {
-    color: "#39FF14",
+    color: theme.tint,
     fontSize: 16,
     fontWeight: "bold",
   },
@@ -282,29 +284,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
   },
   imageTimestamp: {
-    color: "#444",
+    color: theme.textSecondary,
     fontSize: 11,
     marginTop: 15,
   },
-
-  noDataText: { color: "#333" },
+  noDataText: { color: theme.textSecondary },
   footerInfo: { marginTop: 30, alignItems: "center" },
-  footerText: { color: "#222", fontSize: 10, fontWeight: "bold" },
-
-  botaoLogout: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#D9534F", // Vermelho para indicar ação de saída
-    paddingVertical: 12,
-    borderRadius: 30,
-    marginTop: 20,
-    width: "100%",
-  },
-  textoLogout: {
-    color: "#FFF",
-    fontSize: 16,
-    fontWeight: "bold",
-    marginLeft: 10,
-  },
+  footerText: { color: theme.textSecondary, fontSize: 10, fontWeight: "bold" },
 });

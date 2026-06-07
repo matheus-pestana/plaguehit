@@ -2,9 +2,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import React, { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Colors } from "../../constants/theme";
+import { useColorScheme } from "../../hooks/use-color-scheme";
 import { auth } from '../services/firebaseConfig';
 
 export default function ResetPassword({ navigation }: any) {
+  const colorScheme = useColorScheme() ?? 'light';
+  const theme = Colors[colorScheme];
+  const styles = createStyles(theme);
+
   const [email, setEmail] = useState('');
 
   const handleReset = async () => {
@@ -24,7 +30,8 @@ export default function ResetPassword({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+      <StatusBar translucent backgroundColor="transparent" barStyle={colorScheme === 'dark' ? "light-content" : "dark-content"} />
+      
       <SafeAreaView style={styles.safeArea}>
         <KeyboardAvoidingView 
           style={{ flex: 1, width: '100%' }}
@@ -33,7 +40,7 @@ export default function ResetPassword({ navigation }: any) {
           <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
             
             <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-              <Ionicons name="arrow-back" size={28} color="#F4F9F1" />
+              <Ionicons name="arrow-back" size={28} color={theme.textOnPrimary} />
             </TouchableOpacity>
 
             <View style={styles.headerContainer}>
@@ -43,11 +50,11 @@ export default function ResetPassword({ navigation }: any) {
 
             <View style={styles.formContainer}>
               <View style={styles.inputContainer}>
-                <Ionicons name="mail-outline" size={20} color="#666" style={styles.icon} />
+                <Ionicons name="mail-outline" size={20} color={theme.icon} style={styles.icon} />
                 <TextInput 
                   style={styles.input}
                   placeholder="E-mail"
-                  placeholderTextColor="#666"
+                  placeholderTextColor={theme.textSecondary}
                   value={email}
                   onChangeText={setEmail}
                   autoCapitalize="none"
@@ -66,10 +73,10 @@ export default function ResetPassword({ navigation }: any) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#6C9953',
+    backgroundColor: theme.backgroundPrimary,
   },
   safeArea: {
     flex: 1,
@@ -93,14 +100,14 @@ const styles = StyleSheet.create({
   },
   titulo: {
     fontSize: 32,
-    color: '#1A2F1A',
+    color: theme.textOnPrimary,
     fontWeight: '900',
     marginBottom: 10,
     textAlign: 'center',
   },
   subtitulo: {
     fontSize: 16,
-    color: '#F4F9F1',
+    color: theme.textOnPrimary,
     textAlign: 'center',
     paddingHorizontal: 10,
   },
@@ -110,10 +117,10 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: theme.card,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#1A2F1A',
+    borderColor: theme.border,
     marginBottom: 25,
     paddingHorizontal: 15,
     height: 55,
@@ -124,18 +131,20 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
+    color: theme.text,
     height: '100%',
   },
   botao: {
-    backgroundColor: '#b3d19f',
+    backgroundColor: theme.buttonBackground,
     paddingVertical: 15,
     borderRadius: 30,
     alignItems: 'center',
+    borderWidth: theme.buttonBackground === '#1A1A1A' ? 1 : 0,
+    borderColor: theme.border,
   },
   textoBotao: {
     fontSize: 20,
-    color: '#F4F9F1',
+    color: theme.buttonText,
     fontWeight: 'bold',
   },
 });

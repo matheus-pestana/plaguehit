@@ -2,20 +2,21 @@ import { Ionicons } from "@expo/vector-icons";
 import { onValue, push, ref } from "firebase/database";
 import React, { useEffect, useRef, useState } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    KeyboardAvoidingView,
-    Platform,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Colors } from "../../constants/theme";
+import { useColorScheme } from "../../hooks/use-color-scheme";
 import { auth, database } from "../services/firebaseConfig";
-
-const API_KEY = "";
 
 interface Message {
   id: string;
@@ -25,6 +26,10 @@ interface Message {
 }
 
 export default function Chat({ navigation }: any) {
+  const colorScheme = useColorScheme() ?? 'light';
+  const theme = Colors[colorScheme];
+  const styles = createStyles(theme);
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,6 +37,8 @@ export default function Chat({ navigation }: any) {
   const flatListRef = useRef<FlatList>(null);
 
   const user = auth.currentUser;
+
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (!user) return;
@@ -114,7 +121,7 @@ export default function Chat({ navigation }: any) {
       const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${API_KEY}`,
+          "Authorization": `Bearer ${process.env.EXPO_PUBLIC_AI_API_KEY}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -166,9 +173,10 @@ export default function Chat({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.container}>
+      
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={26} color="#39FF14" />
+          <Ionicons name="arrow-back" size={26} color={theme.tint} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>ASSISTENTE IA</Text>
         <View style={{ width: 26 }} />
@@ -190,22 +198,22 @@ export default function Chat({ navigation }: any) {
 
         {loading && (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="small" color="#39FF14" />
+            <ActivityIndicator size="small" color={theme.tint} />
             <Text style={styles.loadingText}>Processando...</Text>
           </View>
         )}
 
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, { paddingBottom: Platform.OS === 'android' ? Math.max(insets.bottom + 15, 15) : 25 }]}>
           <TextInput
             style={styles.input}
             placeholder="Digite sua dúvida..."
-            placeholderTextColor="#666"
+            placeholderTextColor={theme.textSecondary}
             value={inputText}
             onChangeText={setInputText}
             multiline
           />
           <TouchableOpacity style={styles.sendButton} onPress={sendMessage} disabled={loading}>
-            <Ionicons name="send" size={20} color="#000" />
+            <Ionicons name="send" size={20} color={theme.buttonText} />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -213,22 +221,22 @@ export default function Chat({ navigation }: any) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#050505" },
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 25, paddingTop: 50, paddingBottom: 15, borderBottomWidth: 1, borderColor: "#111" },
+const createStyles = (theme: typeof Colors.light) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.background },
+  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", paddingHorizontal: 25, paddingTop: 50, paddingBottom: 15, borderBottomWidth: 1, borderColor: theme.border },
   backButton: { padding: 5 },
-  headerTitle: { fontSize: 18, fontWeight: "900", color: "#39FF14", letterSpacing: 2 },
+  headerTitle: { fontSize: 18, fontWeight: "900", color: theme.tint, letterSpacing: 2 },
   chatContainer: { flex: 1 },
   listContainer: { padding: 20, flexGrow: 1, justifyContent: "flex-end" },
   messageBubble: { maxWidth: "80%", padding: 15, borderRadius: 20, marginBottom: 15 },
-  userBubble: { alignSelf: "flex-end", backgroundColor: "#39FF14", borderBottomRightRadius: 5 },
-  botBubble: { alignSelf: "flex-start", backgroundColor: "#1A1A1A", borderWidth: 1, borderColor: "#333", borderBottomLeftRadius: 5 },
+  userBubble: { alignSelf: "flex-end", backgroundColor: theme.buttonBackground, borderBottomRightRadius: 5 },
+  botBubble: { alignSelf: "flex-start", backgroundColor: theme.card, borderWidth: 1, borderColor: theme.border, borderBottomLeftRadius: 5 },
   messageText: { fontSize: 15, lineHeight: 22 },
-  userText: { color: "#000", fontWeight: "600" },
-  botText: { color: "#FFF" },
-  inputContainer: { flexDirection: "row", padding: 15, borderTopWidth: 1, borderColor: "#111", backgroundColor: "#0A0A0A", alignItems: "center" },
-  input: { flex: 1, backgroundColor: "#151515", color: "#FFF", borderRadius: 20, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 12, maxHeight: 100, borderWidth: 1, borderColor: "#222" },
-  sendButton: { backgroundColor: "#39FF14", width: 45, height: 45, borderRadius: 25, justifyContent: "center", alignItems: "center", marginLeft: 10 },
+  userText: { color: theme.buttonText, fontWeight: "600" },
+  botText: { color: theme.text },
+  inputContainer: { flexDirection: "row", padding: 15, borderTopWidth: 1, borderColor: theme.border, backgroundColor: theme.card, alignItems: "center" },
+  input: { flex: 1, backgroundColor: theme.background, color: theme.text, borderRadius: 20, paddingHorizontal: 20, paddingTop: 12, paddingBottom: 12, maxHeight: 100, borderWidth: 1, borderColor: theme.border },
+  sendButton: { backgroundColor: theme.buttonBackground, width: 45, height: 45, borderRadius: 25, justifyContent: "center", alignItems: "center", marginLeft: 10, borderWidth: theme.buttonBackground === '#1A1A1A' ? 1 : 0, borderColor: theme.border },
   loadingContainer: { flexDirection: "row", alignItems: "center", paddingHorizontal: 25, paddingBottom: 10 },
-  loadingText: { color: "#666", fontSize: 12, marginLeft: 10, fontStyle: "italic" },
+  loadingText: { color: theme.textSecondary, fontSize: 12, marginLeft: 10, fontStyle: "italic" },
 });

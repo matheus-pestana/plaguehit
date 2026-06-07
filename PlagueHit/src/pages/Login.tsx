@@ -2,7 +2,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import * as Google from "expo-auth-session/providers/google";
 import * as LocalAuthentication from "expo-local-authentication";
-import * as NavigationBar from "expo-navigation-bar";
 import * as SecureStore from "expo-secure-store";
 import * as WebBrowser from "expo-web-browser";
 import {
@@ -19,13 +18,14 @@ import {
   Platform,
   SafeAreaView,
   ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Colors } from "../../constants/theme";
+import { useColorScheme } from "../../hooks/use-color-scheme";
 import { auth } from "../services/firebaseConfig";
 
 if (Platform.OS !== "web") {
@@ -33,6 +33,10 @@ if (Platform.OS !== "web") {
 }
 
 export default function Login({ navigation }: any) {
+  const colorScheme = useColorScheme() ?? 'light';
+  const theme = Colors[colorScheme];
+  const styles = createStyles(theme);
+
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
@@ -45,7 +49,7 @@ export default function Login({ navigation }: any) {
   const realizarLoginBiometrico = async () => {
     const result = await LocalAuthentication.authenticateAsync({
       promptMessage: "Usar biometria",
-      fallbackLabel: "Usar senha", // Botão para o usuário cancelar a biometria
+      fallbackLabel: "Usar senha",
       disableDeviceFallback: true,
     });
 
@@ -56,7 +60,7 @@ export default function Login({ navigation }: any) {
       if (emailSalvo && senhaSalva) {
         try {
           await signInWithEmailAndPassword(auth, emailSalvo, senhaSalva);
-          navigation.replace("Dashboard"); // Redireciona após o sucesso
+          navigation.replace("Dashboard");
         } catch (error) {
           Alert.alert("Erro", "Falha ao autenticar com as credenciais salvas.");
         }
@@ -76,9 +80,8 @@ export default function Login({ navigation }: any) {
           if (emailSalvo && senhaSalva) {
             setBiometriaDisponivel(true);
 
-            // Verifica a trava silenciosa
             if (!jaSolicitouBiometria.current) {
-              jaSolicitouBiometria.current = true; // Ativa a trava imediatamente
+              jaSolicitouBiometria.current = true;
               await realizarLoginBiometrico();
             }
           } else {
@@ -91,34 +94,20 @@ export default function Login({ navigation }: any) {
 
       iniciarAutoLogin();
 
-      // Quando o usuário sai de vez da tela de Login, resetamos a trava silenciosamente
       return () => {
         jaSolicitouBiometria.current = false;
       };
-    }, []), // <- O ARRAY VAZIO AQUI É CRUCIAL. Evita o loop.
+    }, [])
   );
 
   const [request, response, promptAsync] = Google.useAuthRequest({
-    iosClientId: "SEU_CLIENT_ID_IOS.apps.googleusercontent.com",
-    androidClientId: "SEU_CLIENT_ID_ANDROID.apps.googleusercontent.com",
-    webClientId:
-      "628377698907-sa7iouqkim5dbnbrkmn7e4qt0lnevmmj.apps.googleusercontent.com",
+    iosClientId: process.env.EXPO_PUBLIC_IOS_CLIENT_ID,
+    androidClientId: process.env.EXPO_PUBLIC_ANDROID_CLIENT_ID,
+    webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
   });
 
   useEffect(() => {
-    const configureAndroidBars = async () => {
-      if (Platform.OS === "android") {
-        await NavigationBar.setBackgroundColorAsync("#6C9953");
-        await NavigationBar.setButtonStyleAsync("light");
-      }
-    };
-    configureAndroidBars();
-  }, []);
-
-  useEffect(() => {
     if (response?.type === "success") {
-      // Busca o token no objeto authentication (padrão mais recente do Expo) 
-      // ou faz o fallback para o params caso esteja rodando em uma versão legada
       const idToken = response.authentication?.idToken || response.params?.id_token;
 
       if (!idToken) {
@@ -129,9 +118,7 @@ export default function Login({ navigation }: any) {
       const credential = GoogleAuthProvider.credential(idToken);
 
       signInWithCredential(auth, credential)
-        .then(() => {
-          // Mantemos vazio para evitar a tela branca, o App.tsx fará o redirecionamento
-        })
+        .then(() => { })
         .catch((error) => {
           console.error("Erro no Firebase:", error);
           Alert.alert("Erro", "Falha ao registrar credencial no Firebase.");
@@ -141,17 +128,14 @@ export default function Login({ navigation }: any) {
 
   const handleGoogleLogin = async () => {
     if (Platform.OS === "web") {
-      // Fluxo específico e seguro para a WEB
       try {
         const provider = new GoogleAuthProvider();
         await signInWithPopup(auth, provider);
-        // Sucesso! O App.tsx fará a navegação automaticamente para o Dashboard
       } catch (error) {
         console.error("Erro no Google Web:", error);
         Alert.alert("Erro", "Falha na autenticação web com Google.");
       }
     } else {
-      // Fluxo para Android e iOS usando o Expo Auth Session
       promptAsync();
     }
   };
@@ -173,11 +157,6 @@ export default function Login({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-      <StatusBar
-        translucent
-        backgroundColor="transparent"
-        barStyle="light-content"
-      />
 
       <Image
         source={require("../assets/images/circuit2.png")}
@@ -208,13 +187,13 @@ export default function Login({ navigation }: any) {
                 <Ionicons
                   name="person-outline"
                   size={20}
-                  color="#666"
+                  color={theme.icon}
                   style={styles.icon}
                 />
                 <TextInput
                   style={styles.input}
                   placeholder="E-mail ou Usuário"
-                  placeholderTextColor="#666"
+                  placeholderTextColor={theme.textSecondary}
                   value={email}
                   onChangeText={setEmail}
                   autoCapitalize="none"
@@ -225,13 +204,13 @@ export default function Login({ navigation }: any) {
                 <Ionicons
                   name="lock-closed-outline"
                   size={20}
-                  color="#666"
+                  color={theme.icon}
                   style={styles.icon}
                 />
                 <TextInput
                   style={styles.input}
                   placeholder="Senha"
-                  placeholderTextColor="#666"
+                  placeholderTextColor={theme.textSecondary}
                   secureTextEntry={!mostrarSenha}
                   value={senha}
                   onChangeText={setSenha}
@@ -242,7 +221,7 @@ export default function Login({ navigation }: any) {
                   <Ionicons
                     name={mostrarSenha ? "eye-outline" : "eye-off-outline"}
                     size={22}
-                    color="#666"
+                    color={theme.icon}
                   />
                 </TouchableOpacity>
               </View>
@@ -271,7 +250,7 @@ export default function Login({ navigation }: any) {
               >
                 <Image
                   source={{
-                    uri: "https://www.citypng.com/public/uploads/preview/google-logo-icon-gsuite-hd-701751694791470gzbayltphh.png",
+                    uri: "https://static.vecteezy.com/system/resources/previews/022/613/027/non_2x/google-icon-logo-symbol-free-png.png",
                   }}
                   style={styles.googleImage}
                 />
@@ -282,7 +261,7 @@ export default function Login({ navigation }: any) {
                   onPress={realizarLoginBiometrico}
                   style={styles.botaoBiometria}
                 >
-                  <Ionicons name="finger-print" size={24} color="#1A2F1A" />
+                  <Ionicons name="finger-print" size={24} color={theme.text} />
                   <Text style={styles.textoBotaoBiometria}>Usar Biometria</Text>
                 </TouchableOpacity>
               )}
@@ -302,183 +281,146 @@ export default function Login({ navigation }: any) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#6C9953",
+    backgroundColor: theme.backgroundPrimary,
   },
-
-  safeArea: {
-    flex: 1,
-  },
-
+  safeArea: { flex: 1 },
   scrollContainer: {
     flexGrow: 1,
     alignItems: "center",
     justifyContent: "space-evenly",
     paddingHorizontal: 35,
   },
-
   headerContainer: {
     alignItems: "center",
     justifyContent: "center",
     height: 150,
     width: "100%",
   },
-
   background: {
     position: "absolute",
     top: 0,
     opacity: 0.2,
   },
-
   logo: {
     position: "absolute",
     width: 150,
     height: 150,
   },
-
   titulo: {
     fontSize: 32,
-    color: "#1A2F1A",
+    color: theme.text,
     fontWeight: "900",
     top: 90,
   },
-
-  formContainer: {
-    width: "100%",
-  },
-
+  formContainer: { width: "100%" },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.card,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#1A2F1A",
+    borderColor: theme.border,
     marginBottom: 15,
     paddingHorizontal: 15,
     height: 55,
   },
-
-  icon: {
-    marginRight: 10,
-  },
-
+  icon: { marginRight: 10 },
   input: {
     flex: 1,
     fontSize: 16,
-    color: "#333",
+    color: theme.text,
     height: "100%",
   },
-
   forgotPassword: {
     alignSelf: "flex-end",
     marginBottom: 25,
   },
-
   forgotPasswordText: {
-    color: "white",
+    color: theme.textOnPrimary,
     textDecorationLine: "underline",
     fontSize: 14,
   },
-
   botaoEntrar: {
-    backgroundColor: "#b3d19f",
+    backgroundColor: theme.buttonBackground,
     paddingVertical: 15,
     borderRadius: 30,
     alignItems: "center",
     marginBottom: 30,
+    borderWidth: theme.buttonBackground === '#1A1A1A' ? 1 : 0,
+    borderColor: theme.border,
   },
-
   textoBotao: {
     fontSize: 20,
-    color: "#F4F9F1",
+    color: theme.buttonText,
     fontWeight: "bold",
   },
-
   dividerContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 25,
   },
-
   line: {
     flex: 1,
     height: 1,
-    backgroundColor: "white",
+    backgroundColor: theme.divider,
     opacity: 1,
   },
-
   dividerText: {
-    color: "#3a532d",
+    color: theme.textOnPrimary,
     paddingHorizontal: 10,
     fontSize: 14,
   },
-
   botaoGoogle: {
     flexDirection: "row",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.card,
     borderRadius: 30,
     borderWidth: 1,
-    borderColor: "#1A2F1A",
+    borderColor: theme.border,
     paddingVertical: 12,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 40,
   },
-
   googleImage: {
     width: 18,
     height: 18,
     marginRight: 10,
   },
-
   textoGoogle: {
     fontSize: 14,
-    color: "#333",
+    color: theme.text,
     fontWeight: "600",
   },
-
   botaoBiometria: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: theme.card,
     borderRadius: 30,
     borderWidth: 1,
-    borderColor: "#1A2F1A",
+    borderColor: theme.border,
     paddingVertical: 12,
-    marginTop: 10,
+    // marginTop: 10,
     marginBottom: 20,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 3.84,
   },
-
   textoBotaoBiometria: {
-    color: "#1A2F1A",
+    color: theme.text,
     fontSize: 12,
     fontWeight: "600",
     marginLeft: 10,
   },
-
   footerContainer: {
     flexDirection: "row",
     justifyContent: "center",
   },
-
-  footerText: {
-    color: "#1A2F1A",
-    fontSize: 15,
-    fontWeight: "500",
-  },
-
   linkText: {
-    color: "white",
+    color: theme.textOnPrimary,
     fontSize: 15,
     textDecorationLine: "underline",
   },

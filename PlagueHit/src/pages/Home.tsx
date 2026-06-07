@@ -2,23 +2,21 @@ import React from "react";
 import {
   Image,
   SafeAreaView,
-  StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-
+import { Colors } from "../../constants/theme";
+import { useColorScheme } from "../../hooks/use-color-scheme";
 
 export default function Home({ navigation }: any) {
+  const colorScheme = useColorScheme() ?? 'light';
+  const theme = Colors[colorScheme];
+  const styles = createStyles(theme);
 
   return (
     <View style={styles.container}>
-      <StatusBar
-        translucent
-        backgroundColor="transparent"
-        barStyle="dark-content"
-      />
 
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.imagensTop}>
@@ -62,19 +60,17 @@ export default function Home({ navigation }: any) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
     width: "100%",
-    backgroundColor: "#6C9953",
+    backgroundColor: theme.backgroundPrimary,
   },
-
   safeArea: {
     flex: 1,
     alignItems: "center",
     justifyContent: "space-between",
   },
-
   conteudoCentral: {
     flex: 1,
     width: "100%",
@@ -82,7 +78,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 40,
   },
-
   imagensTop: {
     position: "absolute",
     top: 0,
@@ -91,7 +86,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
   },
-
   imagensBottom: {
     position: "absolute",
     bottom: 0,
@@ -101,49 +95,41 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "flex-end",
   },
-
   textoBemVindo: {
     fontSize: 38,
-    color: "#F4F9F1",
+    color: theme.textOnPrimary,
     fontWeight: "500",
   },
-
   logo: {
     width: 200,
     height: 200,
     marginBottom: 15,
   },
-
   tituloContainer: {
     flexDirection: "row",
   },
-
   textoPlague: {
     fontSize: 34,
-    color: "#1A2F1A",
+    color: theme.text,
     fontWeight: "900",
   },
-
   textoHit: {
     fontSize: 34,
-    color: "#A6C995",
+    color: theme.tint,
     fontWeight: "bold",
   },
-
   botaoEntrar: {
-    backgroundColor: "#d6e5d0",
+    backgroundColor: theme.card,
     paddingVertical: 12,
     paddingHorizontal: 45,
     borderRadius: 30,
     borderWidth: 1.5,
-    borderColor: "#1A2F1A",
+    borderColor: theme.border,
     marginBottom: 200,
   },
-
   textoBotao: {
     fontSize: 18,
-    color: "#1A2F1A",
+    color: theme.text,
     fontWeight: "600",
   },
-
 });
