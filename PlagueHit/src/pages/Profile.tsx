@@ -1,29 +1,33 @@
-import React, { useState, useEffect } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import * as SecureStore from "expo-secure-store";
+import { sendPasswordResetEmail, signOut } from "firebase/auth";
+import React, { useEffect, useState } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
   Alert,
   Image,
+  SafeAreaView,
   ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Colors } from "../../constants/theme";
+import { useColorScheme } from "../../hooks/use-color-scheme";
 import { auth } from "../services/firebaseConfig";
-import { signOut, sendPasswordResetEmail } from "firebase/auth";
-import * as SecureStore from "expo-secure-store";
 
 export default function Profile({ navigation }: any) {
+  const colorScheme = useColorScheme() ?? 'light';
+  const theme = Colors[colorScheme];
+  const styles = createStyles(theme);
+
   const [userName, setUserName] = useState<string>("Usuário");
   const [userEmail, setUserEmail] = useState<string>("");
 
   useEffect(() => {
-    // Busca os dados do usuário atualmente logado no Firebase
     const user = auth.currentUser;
     if (user) {
       setUserEmail(user.email || "");
-      // O displayName pode ser nulo dependendo de como o cadastro foi feito
       if (user.displayName) {
         setUserName(user.displayName);
       }
@@ -72,7 +76,7 @@ export default function Profile({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Background Decorativo */}
+
       <Image
         source={require("../assets/images/circuit1.png")}
         style={styles.circuitBackground}
@@ -83,16 +87,15 @@ export default function Profile({ navigation }: any) {
           onPress={() => navigation.goBack()}
           style={styles.backButton}
         >
-          <Ionicons name="arrow-back" size={24} color="#39FF14" />
+          <Ionicons name="arrow-back" size={24} color={theme.tint} />
         </TouchableOpacity>
         <Text style={styles.title}>Meu Perfil</Text>
-        <View style={{ width: 24 }} />{" "}
-        {/* Espaçador para centralizar o título */}
+        <View style={{ width: 24 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.avatarContainer}>
-          <Ionicons name="person-circle-outline" size={120} color="#39FF14" />
+          <Ionicons name="person-circle-outline" size={120} color={theme.tint} />
         </View>
 
         <View style={styles.infoContainer}>
@@ -100,7 +103,7 @@ export default function Profile({ navigation }: any) {
             <Ionicons
               name="person-outline"
               size={20}
-              color="#555"
+              color={theme.icon}
               style={styles.infoIcon}
             />
             <View>
@@ -115,7 +118,7 @@ export default function Profile({ navigation }: any) {
             <Ionicons
               name="mail-outline"
               size={20}
-              color="#555"
+              color={theme.icon}
               style={styles.infoIcon}
             />
             <View>
@@ -130,7 +133,7 @@ export default function Profile({ navigation }: any) {
             style={styles.actionButton}
             onPress={handleResetPassword}
           >
-            <Ionicons name="key-outline" size={20} color="#FFF" />
+            <Ionicons name="key-outline" size={20} color={theme.buttonText} />
             <Text style={styles.actionButtonText}>Redefinir Senha</Text>
           </TouchableOpacity>
 
@@ -144,10 +147,10 @@ export default function Profile({ navigation }: any) {
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (theme: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#050505",
+    backgroundColor: theme.background,
   },
   circuitBackground: {
     position: "absolute",
@@ -170,7 +173,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "900",
-    color: "#39FF14",
+    color: theme.tint,
     letterSpacing: 2,
   },
   scrollContent: {
@@ -185,12 +188,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   infoContainer: {
-    backgroundColor: "#0A0A0A",
+    backgroundColor: theme.card,
     width: "100%",
     padding: 20,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#1A1A1A",
+    borderColor: theme.border,
     marginBottom: 30,
   },
   infoItem: {
@@ -202,38 +205,38 @@ const styles = StyleSheet.create({
     marginRight: 15,
   },
   label: {
-    color: "#555",
+    color: theme.textSecondary,
     fontSize: 11,
     fontWeight: "bold",
     letterSpacing: 1,
     marginBottom: 4,
   },
   value: {
-    color: "#FFF",
+    color: theme.text,
     fontSize: 16,
     fontWeight: "500",
   },
   divider: {
     height: 1,
-    backgroundColor: "#151515",
+    backgroundColor: theme.divider,
     marginVertical: 10,
   },
   actionsContainer: {
     width: "100%",
-    gap: 15, // Espaçamento entre os botões
+    gap: 15,
   },
   actionButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#1A1A1A",
+    backgroundColor: theme.buttonBackground,
     borderWidth: 1,
-    borderColor: "#333",
+    borderColor: theme.border,
     paddingVertical: 15,
     borderRadius: 30,
   },
   actionButtonText: {
-    color: "#FFF",
+    color: theme.buttonText,
     fontSize: 16,
     fontWeight: "bold",
     marginLeft: 10,
@@ -242,7 +245,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#D9534F",
+    backgroundColor: theme.danger,
     paddingVertical: 15,
     borderRadius: 30,
   },

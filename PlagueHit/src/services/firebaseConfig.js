@@ -1,21 +1,21 @@
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 import { getApp, getApps, initializeApp } from "firebase/app";
 import {
-    getAuth,
-    getReactNativePersistence,
-    initializeAuth
+  getAuth,
+  getReactNativePersistence,
+  initializeAuth
 } from "firebase/auth";
 import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC3C_fQqB8kqIkh-9HS-9JOEpA0w6YMwXQ",
-  authDomain: "plaguehit.firebaseapp.com",
-  projectId: "plaguehit",
-  storageBucket: "plaguehit.firebasestorage.app",
-  messagingSenderId: "628377698907",
-  appId: "1:628377698907:web:830c9011b8bda8a053357e",
-  measurementId: "G-X99JKNJYZ1",
-  databaseURL: "https://plaguehit-default-rtdb.firebaseio.com"
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  databaseURL: process.env.EXPO_PUBLIC_FIREBASE_DATABASE_URL
 };
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
@@ -25,6 +25,7 @@ export const auth = (() => {
     try {
       return getAuth(app);
     } catch (e) {
+      console.error("Erro ao recuperar a instância de Auth do Firebase:", e);
     }
   }
   return initializeAuth(app, {

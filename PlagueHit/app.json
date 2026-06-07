@@ -4,7 +4,7 @@
     "slug": "PlagueHit",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": ".src/assets/images/icon.png",
+    "icon": "./src/assets/images/chip.png",
     "scheme": "plaguehit",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,17 +13,16 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": ".src/assets/images/android-icon-foreground.png",
-        "backgroundImage": ".src/assets/images/android-icon-background.png",
-        "monochromeImage": ".src/assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#6C9953",
+        "foregroundImage": "./src/assets/images/chip.png"
       },
       "edgeToEdgeEnabled": false,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.matheusap.PlagueHit"
     },
     "web": {
       "output": "static",
-      "favicon": ".src/assets/images/favicon.png"
+      "favicon": "./src/assets/images/chip.png"
     },
     "plugins": [
       "expo-router",
@@ -31,18 +30,18 @@
         "expo-navigation-bar",
         {
           "appearance": "light",
-          "backgroundColor": "#6C9953"
+          // "backgroundColor": "#6C9953"
         }
       ],
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./src/assets/images/chip.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff",
+          "backgroundColor": "#6C9953",
           "dark": {
-            "backgroundColor": "#000000"
+            "backgroundColor": "#050505"
           }
         }
       ],
@@ -51,6 +50,16 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "expo-navigation-bar": {
+        "appearance": "light",
+        "backgroundColor": "#6C9953"
+      },
+      "eas": {
+        "projectId": "47b25db9-5585-44cf-b11b-c80c2936ab3a"
+      }
     }
   }
 }

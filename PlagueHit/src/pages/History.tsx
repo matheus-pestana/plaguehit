@@ -2,17 +2,19 @@ import { Ionicons } from "@expo/vector-icons";
 import { onValue, ref } from "firebase/database";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    Image,
-    Modal,
-    Pressable,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Modal,
+  Pressable,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
+import { Colors } from "../../constants/theme";
+import { useColorScheme } from "../../hooks/use-color-scheme";
 import { database } from "../services/firebaseConfig";
 
 interface AnaliseIA {
@@ -24,25 +26,26 @@ interface AnaliseIA {
 }
 
 export default function History({ navigation }: any) {
+  const colorScheme = useColorScheme() ?? 'light';
+  const theme = Colors[colorScheme];
+  const styles = createStyles(theme);
+
   const [historico, setHistorico] = useState<AnaliseIA[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
-    // Referencia o nó que armazena todas as análises passadas
     const historicoRef = ref(database, "historico_analises");
 
     const unsubscribe = onValue(historicoRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        // Converte o objeto de dicionários do Firebase em uma matriz estruturada
         const lista: AnaliseIA[] = Object.keys(data).map((key) => ({
           id: key,
           ...data[key],
         }));
         
-        // Inverte o array para posicionar os registros cronologicamente mais novos no topo
         setHistorico(lista.reverse());
       } else {
         setHistorico([]);
@@ -62,7 +65,7 @@ export default function History({ navigation }: any) {
           <Ionicons
             name={isSaudavel ? "checkmark-done-circle" : "alert-circle"}
             size={24}
-            color={isSaudavel ? "#39FF14" : "#FF3B30"}
+            color={isSaudavel ? theme.statusIcon : theme.danger}
           />
           <Text style={styles.cardTitle}>{item.diagnostico}</Text>
         </View>
@@ -84,7 +87,7 @@ export default function History({ navigation }: any) {
               setModalVisible(true);
             }}
           >
-            <Ionicons name="image-outline" size={16} color="#000" />
+            <Ionicons name="image-outline" size={16} color={theme.background} />
             <Text style={styles.viewImageText}>VER CAPTURA</Text>
           </TouchableOpacity>
         )}
@@ -94,9 +97,10 @@ export default function History({ navigation }: any) {
 
   return (
     <SafeAreaView style={styles.container}>
+      
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={26} color="#39FF14" />
+          <Ionicons name="arrow-back" size={26} color={theme.tint} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>HISTÓRICO</Text>
         <View style={{ width: 26 }} /> 
@@ -104,7 +108,7 @@ export default function History({ navigation }: any) {
 
       {loading ? (
         <View style={styles.center}>
-          <ActivityIndicator size="large" color="#39FF14" />
+          <ActivityIndicator size="large" color={theme.tint} />
         </View>
       ) : historico.length > 0 ? (
         <FlatList
@@ -120,7 +124,6 @@ export default function History({ navigation }: any) {
         </View>
       )}
 
-      {/* Visualizador de Imagens Antigas */}
       <Modal
         animationType="fade"
         transparent={true}
@@ -132,7 +135,7 @@ export default function History({ navigation }: any) {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Captura Salva</Text>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Ionicons name="close" size={28} color="#FFF" />
+                <Ionicons name="close" size={28} color={theme.text} />
               </TouchableOpacity>
             </View>
 
@@ -146,8 +149,8 @@ export default function History({ navigation }: any) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#050505" },
+const createStyles = (theme: typeof Colors.light) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: theme.background },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -156,39 +159,39 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 15,
     borderBottomWidth: 1,
-    borderColor: "#111",
+    borderColor: theme.border,
   },
   backButton: { padding: 5 },
-  headerTitle: { fontSize: 20, fontWeight: "900", color: "#39FF14", letterSpacing: 2 },
+  headerTitle: { fontSize: 20, fontWeight: "900", color: theme.tint, letterSpacing: 2 },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
   listContainer: { padding: 20, paddingBottom: 40 },
-  noDataText: { color: "#444", fontSize: 14, fontWeight: "bold" },
+  noDataText: { color: theme.textSecondary, fontSize: 14, fontWeight: "bold" },
   card: {
-    backgroundColor: "#0A0A0A",
+    backgroundColor: theme.card,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: "#1A1A1A",
+    borderColor: theme.border,
     padding: 20,
     marginBottom: 15,
   },
   cardHeader: { flexDirection: "row", alignItems: "center", marginBottom: 12 },
-  cardTitle: { color: "#FFF", fontSize: 18, fontWeight: "bold", marginLeft: 10 },
-  cardBody: { borderTopWidth: 1, borderTopColor: "#151515", paddingTop: 10, marginBottom: 15 },
-  label: { color: "#555", fontSize: 13, marginBottom: 4 },
-  value: { color: "#AAA", fontSize: 13 },
+  cardTitle: { color: theme.text, fontSize: 18, fontWeight: "bold", marginLeft: 10 },
+  cardBody: { borderTopWidth: 1, borderTopColor: theme.divider, paddingTop: 10, marginBottom: 15 },
+  label: { color: theme.textSecondary, fontSize: 13, marginBottom: 4 },
+  value: { color: theme.textSecondary, fontSize: 13 },
   viewImageButton: {
     flexDirection: "row",
-    backgroundColor: "#39FF14",
+    backgroundColor: theme.tint,
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 10,
     alignItems: "center",
     alignSelf: "flex-start",
   },
-  viewImageText: { color: "#000", fontWeight: "900", fontSize: 11, marginLeft: 6 },
+  viewImageText: { color: theme.background, fontWeight: "900", fontSize: 11, marginLeft: 6 },
   modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.9)", justifyContent: "center", alignItems: "center" },
-  modalContent: { width: "90%", backgroundColor: "#111", borderRadius: 20, padding: 20, alignItems: "center", borderWidth: 1, borderColor: "#333" },
+  modalContent: { width: "90%", backgroundColor: theme.card, borderRadius: 20, padding: 20, alignItems: "center", borderWidth: 1, borderColor: theme.border },
   modalHeader: { flexDirection: "row", justifyContent: "space-between", width: "100%", marginBottom: 20 },
-  modalTitle: { color: "#39FF14", fontSize: 16, fontWeight: "bold" },
+  modalTitle: { color: theme.tint, fontSize: 16, fontWeight: "bold" },
   modalImage: { width: "100%", height: 300, borderRadius: 10, backgroundColor: "#000" },
 });
