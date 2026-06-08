@@ -18,19 +18,19 @@
       },
       "edgeToEdgeEnabled": false,
       "predictiveBackGestureEnabled": false,
-      "package": "com.matheusap.PlagueHit"
+      "package": "com.matheus.plagueHit"
     },
     "web": {
       "output": "static",
       "favicon": "./src/assets/images/chip.png"
     },
     "plugins": [
+      "@react-native-google-signin/google-signin",
       "expo-router",
       [
         "expo-navigation-bar",
         {
-          "appearance": "light",
-          // "backgroundColor": "#6C9953"
+          "appearance": "light"
         }
       ],
       [
@@ -45,7 +45,8 @@
           }
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      "@react-native-google-signin/google-signin"
     ],
     "experiments": {
       "typedRoutes": true,

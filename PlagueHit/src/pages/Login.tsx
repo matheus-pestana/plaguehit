@@ -1,9 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { useFocusEffect } from "@react-navigation/native";
-import * as Google from "expo-auth-session/providers/google";
 import * as LocalAuthentication from "expo-local-authentication";
 import * as SecureStore from "expo-secure-store";
-import * as WebBrowser from "expo-web-browser";
 import {
   GoogleAuthProvider,
   signInWithCredential,
@@ -28,10 +27,6 @@ import { Colors } from "../../constants/theme";
 import { useColorScheme } from "../../hooks/use-color-scheme";
 import { auth } from "../services/firebaseConfig";
 
-if (Platform.OS !== "web") {
-  WebBrowser.maybeCompleteAuthSession();
-}
-
 export default function Login({ navigation }: any) {
   const colorScheme = useColorScheme() ?? 'light';
   const theme = Colors[colorScheme];
@@ -40,11 +35,24 @@ export default function Login({ navigation }: any) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [biometriaDisponivel, setBiometriaDisponivel] = useState(false);
+  
+  const jaSolicitouBiometria = useRef(false);
+
+  // Configuração inicial do Google Sign-In
+  useEffect(() => {
+    if (Platform.OS !== "web") {
+      GoogleSignin.configure({
+        webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
+        // Opcional: forceCodeForRefreshToken: true,
+      });
+    }
+  }, []);
+
   const salvarCredenciais = async (email: string, senha: string) => {
     await SecureStore.setItemAsync("user_email", email);
     await SecureStore.setItemAsync("user_password", senha);
   };
-  const jaSolicitouBiometria = useRef(false);
 
   const realizarLoginBiometrico = async () => {
     const result = await LocalAuthentication.authenticateAsync({
@@ -67,8 +75,6 @@ export default function Login({ navigation }: any) {
       }
     }
   };
-
-  const [biometriaDisponivel, setBiometriaDisponivel] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -100,15 +106,28 @@ export default function Login({ navigation }: any) {
     }, [])
   );
 
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    iosClientId: process.env.EXPO_PUBLIC_IOS_CLIENT_ID,
-    androidClientId: process.env.EXPO_PUBLIC_ANDROID_CLIENT_ID,
-    webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
-  });
+  const handleGoogleLogin = async () => {
+    // Fluxo para ambiente Web (Mantido do seu código original)
+    if (Platform.OS === "web") {
+      try {
+        const provider = new GoogleAuthProvider();
+        await signInWithPopup(auth, provider);
+        // Opcional: navigation.replace("Dashboard");
+      } catch (error) {
+        console.error("Erro no Google Web:", error);
+        Alert.alert("Erro", "Falha na autenticação web com Google.");
+      }
+      return;
+    }
 
-  useEffect(() => {
-    if (response?.type === "success") {
-      const idToken = response.authentication?.idToken || response.params?.id_token;
+    // Fluxo Nativo (Android/iOS) usando Google Sign-In
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      
+      // Dependendo da versão da biblioteca, o objeto userInfo pode variar ligeiramente
+      // O TS pode reclamar de 'data', por isso usamos a verificação em cascata
+      const idToken = (userInfo as any)?.data?.idToken || userInfo.idToken;
 
       if (!idToken) {
         Alert.alert("Erro", "Token de autenticação não recebido do Google.");
@@ -116,27 +135,20 @@ export default function Login({ navigation }: any) {
       }
 
       const credential = GoogleAuthProvider.credential(idToken);
+      await signInWithCredential(auth, credential);
+      
+      // Opcional: Descomente abaixo se o seu App precisa de um push manual após o Firebase logar
+      // navigation.replace("Dashboard");
 
-      signInWithCredential(auth, credential)
-        .then(() => { })
-        .catch((error) => {
-          console.error("Erro no Firebase:", error);
-          Alert.alert("Erro", "Falha ao registrar credencial no Firebase.");
-        });
-    }
-  }, [response]);
-
-  const handleGoogleLogin = async () => {
-    if (Platform.OS === "web") {
-      try {
-        const provider = new GoogleAuthProvider();
-        await signInWithPopup(auth, provider);
-      } catch (error) {
-        console.error("Erro no Google Web:", error);
-        Alert.alert("Erro", "Falha na autenticação web com Google.");
+    } catch (error: any) {
+      // O usuário fechou o pop-up do Google antes de logar
+      if (error.code === 'SIGN_IN_CANCELLED') {
+        console.log("Login com Google cancelado pelo usuário.");
+        return;
       }
-    } else {
-      promptAsync();
+      
+      console.error("Erro no Google Sign-In Nativo:", error);
+      Alert.alert("Erro", "Falha ao registrar credencial no Firebase.");
     }
   };
 
@@ -147,7 +159,6 @@ export default function Login({ navigation }: any) {
     }
     try {
       await signInWithEmailAndPassword(auth, email, senha);
-
       await salvarCredenciais(email, senha);
       setBiometriaDisponivel(true);
     } catch (error: any) {
@@ -157,7 +168,6 @@ export default function Login({ navigation }: any) {
 
   return (
     <View style={styles.container}>
-
       <Image
         source={require("../assets/images/circuit2.png")}
         resizeMode="cover"
@@ -256,6 +266,7 @@ export default function Login({ navigation }: any) {
                 />
                 <Text style={styles.textoGoogle}>Continuar com Google</Text>
               </TouchableOpacity>
+              
               {biometriaDisponivel && (
                 <TouchableOpacity
                   onPress={realizarLoginBiometrico}
@@ -403,7 +414,6 @@ const createStyles = (theme: typeof Colors.light) => StyleSheet.create({
     borderWidth: 1,
     borderColor: theme.border,
     paddingVertical: 12,
-    // marginTop: 10,
     marginBottom: 20,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
