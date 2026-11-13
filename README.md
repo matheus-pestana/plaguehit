@@ -206,10 +206,10 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 ## 📱 App Screens
 
 <p align="center">
-  <img src="docs/screenshots/boas-vindas.png" alt="Welcome screen" width="200"/>
-  <img src="docs/screenshots/dashboard.png" alt="Real-time analysis dashboard" width="200"/>
-  <img src="docs/screenshots/historico.png" alt="Analysis history" width="200"/>
-  <img src="docs/screenshots/assistente-ia.png" alt="AI assistant" width="200"/>
+  <img src="docs/screenshots/boas-vindas.jpeg" alt="Welcome screen" width="200"/>
+  <img src="docs/screenshots/dashboard.jpeg" alt="Real-time analysis dashboard" width="200"/>
+  <img src="docs/screenshots/historico.jpeg" alt="Analysis history" width="200"/>
+  <img src="docs/screenshots/assistente-ia.jpeg" alt="AI assistant" width="200"/>
 </p>
 
 <p align="center">
