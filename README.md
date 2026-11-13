@@ -7,10 +7,10 @@ O **PlagueHit** é um aplicativo móvel que une **inteligência artificial**, **
 ## 📱 Telas do App
 
 <p align="center">
-  <img src="docs/screenshots/boas-vindas.png" alt="Tela de boas-vindas" width="200"/>
-  <img src="docs/screenshots/dashboard.png" alt="Dashboard com análise em tempo real" width="200"/>
-  <img src="docs/screenshots/historico.png" alt="Histórico de análises" width="200"/>
-  <img src="docs/screenshots/assistente-ia.png" alt="Assistente de IA" width="200"/>
+  <img src="docs/screenshots/boas-vindas.jpeg" alt="Tela de boas-vindas" width="200"/>
+  <img src="docs/screenshots/dashboard.jpeg" alt="Dashboard com análise em tempo real" width="200"/>
+  <img src="docs/screenshots/historico.jpeg" alt="Histórico de análises" width="200"/>
+  <img src="docs/screenshots/assistente-ia.jpeg" alt="Assistente de IA" width="200"/>
 </p>
 
 <p align="center">
