@@ -83,8 +83,9 @@ O app conta com um chatbot para apoiar o produtor.
 *   **[Firebase](https://firebase.google.com/):** autenticação e banco de dados (Firestore/Realtime DB).
 
 **Hardware / IoT**
-*   **ESP32-CAM:** captura de imagens.
-*   **DHT22:** temperatura e umidade.
+* **ESP32-CAM:** captura de imagens.
+* **DHT22:** temperatura e umidade.
+* **AWS (EC2 e S3):** processamento em nuvem e armazenamento de imagens.
 
 ---
 
