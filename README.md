@@ -2,44 +2,101 @@
 
 # 🌾 PlagueHit
 
-O **PlagueHit** é um aplicativo móvel inovador desenvolvido para revolucionar o monitoramento agrícola. Integrando tecnologias modernas de desenvolvimento mobile com sensores IoT, o aplicativo permite que agricultores e agrônomos realizem a detecção precoce de pragas e a análise da saúde do solo em tempo real, garantindo colheitas mais seguras, eficientes e sustentáveis.
+O **PlagueHit** é um aplicativo móvel que une **inteligência artificial**, **visão computacional** e **sensores IoT** para o monitoramento agrícola. Um modelo de deep learning treinado por nós identifica pragas e sintomas em folhas de **feijão**, enquanto sensores medem as condições do solo em tempo real. Um **chatbot** dentro do app orienta o produtor.
+
+## 📱 Telas do App
+
+<p align="center">
+  <img src="docs/screenshots/boas-vindas.png" alt="Tela de boas-vindas" width="200"/>
+  <img src="docs/screenshots/dashboard.png" alt="Dashboard com análise em tempo real" width="200"/>
+  <img src="docs/screenshots/historico.png" alt="Histórico de análises" width="200"/>
+  <img src="docs/screenshots/assistente-ia.png" alt="Assistente de IA" width="200"/>
+</p>
+
+<p align="center">
+  <sub>Boas-vindas · Dashboard em tempo real · Histórico · Assistente de IA</sub>
+</p>
+
+---
+
+## 🧠 Inteligência Artificial
+
+### Modelo de detecção de pragas (visão computacional)
+
+Treinamos uma rede neural convolucional (CNN) com **TensorFlow/Keras** para classificar fotos de folhas de feijão em três classes:
+
+| Classe | Significado |
+|---|---|
+| `mosca_branca` | Folha com presença de mosca-branca |
+| `saudavel` | Folha saudável |
+| `sintomas` | Folha com sintomas visíveis |
+
+- **Entrada:** imagens redimensionadas para **150x150 px** e normalizadas (0 a 1).
+- **Saída:** classe prevista + nível de confiança (%).
+- **Arquitetura / técnica:** **[PREENCHER: ex.: CNN própria, transfer learning com MobileNetV2 etc.]**
+- **Dataset:** **[PREENCHER: origem das imagens e quantidade por classe]**
+- **Resultados:** **[PREENCHER: acurácia / precisão / recall no conjunto de teste]**
+- **Treinamento:** Google Colab, com duas versões do modelo (`modelo_pragas_feijao.keras` e `modelo_pragas_feijao_v2.keras`).
+
+### Explicabilidade com Grad-CAM
+
+Para não entregar um diagnóstico "caixa-preta", o projeto usa **Grad-CAM**: além da classe prevista, o sistema gera um **mapa de calor** sobre a foto original, mostrando quais regiões da folha mais influenciaram a decisão do modelo. Isso ajuda o produtor e o agrônomo a **validar visualmente** o resultado.
+
+O script de diagnóstico (`ia/diagnostico_gradcam.py`) carrega o modelo, lê a resolução esperada automaticamente, localiza a última camada convolucional e exibe a imagem original ao lado do diagnóstico com o mapa de calor.
+
+### Integração com o app
+
+**[PREENCHER: explique como o modelo chega ao app. Ex.: API em Python que recebe a foto e devolve a classe, modelo convertido para TFLite, imagem vinda da ESP32-CAM etc.]**
+
+### 🤖 Chatbot
+
+O app conta com um chatbot para apoiar o produtor.
+
+- **Modelo/API utilizado:** **[PREENCHER: ex.: Gemini, OpenAI etc.]**
+- **O que ele faz:** o Assistente IA responde perguntas do produtor usando os dados reais das análises (classe, confiança, data e umidade do solo). Por exemplo, ao perguntar "Como foi minha última análise?", ele resume o diagnóstico, interpreta o resultado e recomenda os próximos passos.
 
 ---
 
 ## ✨ Funcionalidades Principais
 
-*   📊 **Dashboard em Tempo Real:** Visão geral instantânea das métricas da sua fazenda, integrando dados diretos de sensores IoT espalhados pela lavoura.
-*   🐛 **Detecção e Monitoramento de Pragas:** Ferramentas para identificar, registrar e acompanhar focos de pragas, permitindo uma resposta rápida.
-*   🌱 **Análise de Solo:** Acompanhamento dos níveis de umidade, nutrientes e temperatura do solo para otimização da irrigação e adubação.
-*   💬 **Chat Integrado:** Canal de comunicação direto entre a equipe de campo, administradores e especialistas agrícolas.
-*   📜 **Histórico Completo (History):** Acesso ao registro de leituras passadas, alertas e ações tomadas, facilitando a análise de tendências a longo prazo.
-*   🔐 **Autenticação Segura:** Sistema robusto de Login, Cadastro e Recuperação de Senha utilizando Firebase Authentication.
-*   👤 **Gestão de Perfil:** Área dedicada para que o usuário gerencie suas informações pessoais e configurações do aplicativo.
+*   🐛 **Detecção de Pragas com IA:** Diagnóstico de folhas de feijão (mosca-branca, saudável ou com sintomas) com nível de confiança e mapa de calor explicativo (Grad-CAM).
+*   🤖 **Chatbot Integrado:** Assistente dentro do app para apoiar a decisão do produtor.
+*   📊 **Dashboard em Tempo Real:** Visão geral instantânea das métricas da fazenda, com dados diretos de sensores IoT espalhados pela lavoura.
+*   🌱 **Análise de Solo e Ambiente:** Acompanhamento de umidade e temperatura (sensor DHT22) para otimizar irrigação e adubação.
+*   💬 **Chat:** Canal de comunicação entre equipe de campo, administradores e especialistas agrícolas.
+*   📜 **Histórico Completo:** Registro de leituras, alertas e ações, facilitando a análise de tendências.
+*   🔐 **Autenticação Segura:** Login, cadastro e recuperação de senha com Firebase Authentication.
+*   👤 **Gestão de Perfil:** Área para o usuário gerenciar suas informações e configurações.
 
 ---
 
 ## 🛠️ Tecnologias Utilizadas
 
-Este projeto foi construído com as seguintes tecnologias:
+**Inteligência Artificial**
+*   **Python, TensorFlow / Keras:** treinamento e inferência do modelo de classificação.
+*   **OpenCV, NumPy, Matplotlib:** pré-processamento de imagens e visualização do Grad-CAM.
+*   **Google Colab:** ambiente de treinamento.
 
-*   **[React Native](https://reactnative.dev/):** Framework para desenvolvimento de aplicativos móveis nativos utilizando React.
-*   **[Expo](https://expo.dev/):** Plataforma para desenvolvimento universal React, facilitando testes e deploy.
-*   **[Firebase](https://firebase.google.com/):** Backend as a Service (BaaS) utilizado para Autenticação e Banco de Dados (Firestore/Realtime DB).
-*   **[TypeScript](https://www.typescriptlang.org/):** Superset do JavaScript que adiciona tipagem estática ao projeto.
-*   **Sensores IoT:** (Integração de hardware via APIs/Backend para alimentar os dados do Dashboard).
+**Aplicativo**
+*   **[React Native](https://reactnative.dev/)** e **[Expo](https://expo.dev/):** aplicativo mobile.
+*   **[TypeScript](https://www.typescriptlang.org/):** tipagem estática.
+*   **[Firebase](https://firebase.google.com/):** autenticação e banco de dados (Firestore/Realtime DB).
+
+**Hardware / IoT**
+*   **ESP32-CAM:** captura de imagens.
+*   **DHT22:** temperatura e umidade.
 
 ---
 
 ## 📂 Estrutura do Projeto
 
-A estrutura principal de diretórios do projeto está organizada da seguinte forma:
-
 ```text
 PlagueHit/
 ├── App.tsx                     # Ponto de entrada principal do aplicativo
 ├── app.json                    # Configurações do Expo
+├── ia/                         # [ADICIONAR] Notebook/script de treino e diagnóstico (Grad-CAM)
 ├── src/
-│   ├── assets/                 # Imagens, ícones e fontes (ex: home.jpeg, chip.png)
+│   ├── assets/                 # Imagens, ícones e fontes
 │   ├── components/             # Componentes reutilizáveis de UI
 │   ├── pages/                  # Telas da aplicação
 │   │   ├── Chat.tsx
@@ -51,7 +108,7 @@ PlagueHit/
 │   │   ├── Register.tsx
 │   │   └── ResetPassword.tsx
 │   ├── routes/                 # Configuração de navegação (routes.tsx)
-│   └── services/               # Serviços externos
+│   └── services/
 │       └── firebaseConfig.js   # Configuração e inicialização do Firebase
 └── package.json                # Dependências do projeto
 ```
@@ -60,44 +117,33 @@ PlagueHit/
 
 ## 🚀 Como Executar o Projeto
 
-Siga as instruções abaixo para configurar e rodar o projeto em seu ambiente de desenvolvimento local.
-
 ### Pré-requisitos
-
-Antes de começar, você precisará ter as seguintes ferramentas instaladas em sua máquina:
 *   [Node.js](https://nodejs.org/)
 *   [Git](https://git-scm.com/)
 *   [Expo CLI](https://docs.expo.dev/get-started/installation/)
-*   Um smartphone com o aplicativo [Expo Go](https://expo.dev/client) instalado (ou um emulador Android/iOS configurado no computador).
+*   Smartphone com o app [Expo Go](https://expo.dev/client) (ou emulador Android/iOS).
 
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/seu-usuario/plaguehit.git
+git clone https://github.com/matheus-pestana/plaguehit.git
 cd plaguehit
 ```
 
 ### 2. Instale as dependências
 
-Você pode utilizar o `npm` ou `yarn`:
-
 ```bash
-# Usando npm
 npm install
-
-# Usando yarn
-yarn install
 ```
 
-### 3. Configuração do Firebase
+### 3. Configure o Firebase
 
 1. Crie um projeto no [Firebase Console](https://console.firebase.google.com/).
-2. Habilite a **Autenticação** (E-mail/Senha) e o **Firestore Database** (ou Realtime Database).
-3. Registre um aplicativo Web no console do Firebase para obter suas chaves de configuração.
-4. Abra o arquivo `src/services/firebaseConfig.js` e substitua as variáveis de ambiente pelas credenciais do seu projeto:
+2. Habilite **Authentication** (E-mail/Senha) e o **Firestore Database** (ou Realtime Database).
+3. Registre um app Web para obter suas chaves.
+4. Preencha `src/services/firebaseConfig.js` com as credenciais do seu projeto:
 
 ```javascript
-// Exemplo em src/services/firebaseConfig.js
 import { initializeApp } from "firebase/app";
 
 const firebaseConfig = {
@@ -113,27 +159,34 @@ const app = initializeApp(firebaseConfig);
 export default app;
 ```
 
-### 4. Execute a aplicação
-
-Inicie o servidor de desenvolvimento do Expo:
+### 4. Execute o app
 
 ```bash
 npx expo start
 ```
 
-*   Um QR Code será exibido no terminal e no navegador.
-*   Abra o aplicativo **Expo Go** no seu celular, escaneie o QR Code e aguarde o carregamento do aplicativo (certifique-se de que o celular e o computador estejam na mesma rede Wi-Fi).
+Escaneie o QR Code com o Expo Go (celular e computador na mesma rede Wi-Fi).
+
+### 5. (Opcional) Teste o modelo de IA
+
+No Google Colab, coloque o arquivo `modelo_pragas_feijao_v2.keras` no seu Google Drive, execute o script `ia/diagnostico_gradcam.py` e envie a foto de uma folha. O resultado mostra o diagnóstico, a confiança e o mapa de calor.
+
+---
+
+## 👥 Autores
+
+*   **Matheus Pestana** — Desenvolvimento do aplicativo, banco de dados e chatbot.
+*   **Luis Augusto Silva** — Treinamento do modelo de IA, parte de hardware do projeto e instância EC2 na AWS.
+*   **Eduardo Couto** — Design do projeto.
 
 ---
 
 ## 🤝 Como Contribuir
 
-Contribuições são muito bem-vindas! Se você deseja ajudar a melhorar o PlagueHit, siga estes passos:
-
 1. Faça um **Fork** do projeto.
-2. Crie uma nova branch com a sua feature: `git checkout -b minha-feature`
-3. Salve suas alterações e crie uma mensagem de commit detalhando o que foi feito: `git commit -m "feat: adiciona nova funcionalidade X"`
-4. Envie suas alterações: `git push origin minha-feature`
+2. Crie uma branch: `git checkout -b minha-feature`
+3. Commit: `git commit -m "feat: adiciona nova funcionalidade X"`
+4. Push: `git push origin minha-feature`
 5. Abra um **Pull Request**.
 
 ---
@@ -148,44 +201,101 @@ Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para ma
 
 # 🌾 PlagueHit
 
-**PlagueHit** is an innovative mobile application designed to revolutionize agricultural monitoring. By integrating modern mobile development technologies with IoT sensors (such as the ESP32-CAM and DHT22), the app allows farmers and agronomists to perform early pest detection and real-time soil health analysis. This ensures safer, more efficient, and sustainable harvests.
+**PlagueHit** is a mobile app that combines **artificial intelligence**, **computer vision** and **IoT sensors** for agricultural monitoring. A deep learning model we trained identifies pests and symptoms on **common bean (feijão)** leaves, while sensors track field conditions in real time. An in-app **chatbot** guides the farmer.
+
+## 📱 App Screens
+
+<p align="center">
+  <img src="docs/screenshots/boas-vindas.png" alt="Welcome screen" width="200"/>
+  <img src="docs/screenshots/dashboard.png" alt="Real-time analysis dashboard" width="200"/>
+  <img src="docs/screenshots/historico.png" alt="Analysis history" width="200"/>
+  <img src="docs/screenshots/assistente-ia.png" alt="AI assistant" width="200"/>
+</p>
+
+<p align="center">
+  <sub>Welcome · Real-time dashboard · History · AI assistant</sub>
+</p>
+
+---
+
+## 🧠 Artificial Intelligence
+
+### Pest detection model (computer vision)
+
+We trained a convolutional neural network (CNN) with **TensorFlow/Keras** to classify bean leaf photos into three classes:
+
+| Class | Meaning |
+|---|---|
+| `mosca_branca` | Leaf with whitefly present |
+| `saudavel` | Healthy leaf |
+| `sintomas` | Leaf with visible symptoms |
+
+- **Input:** images resized to **150x150 px** and normalized (0 to 1).
+- **Output:** predicted class + confidence score (%).
+- **Architecture / technique:** **[TODO: e.g., custom CNN, transfer learning with MobileNetV2, etc.]**
+- **Dataset:** **[TODO: image source and number of images per class]**
+- **Results:** **[TODO: accuracy / precision / recall on the test set]**
+- **Training:** Google Colab, with two model versions (`modelo_pragas_feijao.keras` and `modelo_pragas_feijao_v2.keras`).
+
+### Explainability with Grad-CAM
+
+To avoid a "black-box" diagnosis, the project uses **Grad-CAM**: besides the predicted class, the system generates a **heatmap** over the original photo showing which regions of the leaf most influenced the model's decision. This lets farmers and agronomists **visually validate** the result.
+
+The diagnosis script (`ia/diagnostico_gradcam.py`) loads the model, reads the expected input resolution automatically, finds the last convolutional layer, and displays the original image next to the diagnosis with the heatmap.
+
+### App integration
+
+**[TODO: explain how the model reaches the app. E.g., Python API that receives the photo and returns the class, model converted to TFLite, image coming from the ESP32-CAM, etc.]**
+
+### 🤖 Chatbot
+
+The app includes a chatbot to support the farmer.
+
+- **Model/API used:** **[TODO: e.g., Gemini, OpenAI, etc.]**
+- **What it does:** the AI Assistant answers the farmer's questions using real analysis data (class, confidence, date and soil moisture). For example, when asked "How was my last analysis?", it summarizes the diagnosis, interprets the result and recommends next steps.
 
 ---
 
 ## ✨ Key Features
 
-*   📊 **Real-Time Dashboard:** Get an instant overview of your farm's metrics, integrating live data directly from IoT sensors deployed in the field.
-*   🐛 **Pest Detection & Monitoring:** Leverage IoT camera integrations (ESP32-CAM) and logging tools to identify, record, and track pest outbreaks, enabling a rapid and targeted response.
-*   🌱 **Soil Analysis:** Monitor soil moisture, nutrients, and temperature (utilizing sensors like the DHT22) to optimize irrigation and fertilization schedules.
-*   💬 **Integrated Chat:** A direct communication channel connecting field staff, farm administrators, and agricultural experts.
-*   📜 **Comprehensive History:** Access a full log of past sensor readings, alerts, and actions taken, making long-term trend analysis effortless.
-*   🔐 **Secure Authentication:** Robust Login, Registration, and Password Recovery systems powered by Firebase Authentication.
-*   👤 **Profile Management:** A dedicated section for users to manage their personal information and customize app settings.
+*   🐛 **AI Pest Detection:** Diagnoses bean leaves (whitefly, healthy or symptomatic) with a confidence score and an explanatory heatmap (Grad-CAM).
+*   🤖 **Integrated Chatbot:** In-app assistant to support the farmer's decisions.
+*   📊 **Real-Time Dashboard:** Instant overview of farm metrics with live data from IoT sensors in the field.
+*   🌱 **Soil & Environment Analysis:** Tracks moisture and temperature (DHT22 sensor) to optimize irrigation and fertilization.
+*   💬 **Chat:** Communication channel between field staff, administrators and agricultural experts.
+*   📜 **Comprehensive History:** Log of readings, alerts and actions for long-term trend analysis.
+*   🔐 **Secure Authentication:** Login, registration and password recovery with Firebase Authentication.
+*   👤 **Profile Management:** Section to manage personal information and settings.
 
 ---
 
 ## 🛠️ Tech Stack
 
-This project is built using the following technologies:
+**Artificial Intelligence**
+*   **Python, TensorFlow / Keras:** model training and inference.
+*   **OpenCV, NumPy, Matplotlib:** image preprocessing and Grad-CAM visualization.
+*   **Google Colab:** training environment.
 
-*   **[React Native](https://reactnative.dev/):** A framework for building native mobile applications using React.
-*   **[Expo](https://expo.dev/):** An open-source platform for making universal native apps for Android, iOS, and the web with JavaScript and React.
-*   **[Firebase](https://firebase.google.com/):** Backend-as-a-Service (BaaS) used for Authentication and Database management (Firestore/Realtime DB).
-*   **[TypeScript](https://www.typescriptlang.org/):** A strongly typed programming language that builds on JavaScript, giving you better tooling at any scale.
-*   **IoT Hardware:** Integration with microcontrollers and sensors (e.g., **ESP32-CAM** for image capture, **DHT22** for temperature and humidity) via backend APIs to feed data to the dashboard.
+**App**
+*   **[React Native](https://reactnative.dev/)** and **[Expo](https://expo.dev/):** mobile app.
+*   **[TypeScript](https://www.typescriptlang.org/):** static typing.
+*   **[Firebase](https://firebase.google.com/):** authentication and database (Firestore/Realtime DB).
+
+**Hardware / IoT**
+*   **ESP32-CAM:** image capture.
+*   **DHT22:** temperature and humidity.
 
 ---
 
 ## 📂 Project Structure
 
-The main directory structure of the project is organized as follows:
-
 ```text
 PlagueHit/
 ├── App.tsx                     # Main entry point of the application
 ├── app.json                    # Expo configuration file
+├── ia/                         # [ADD] Training/diagnosis notebook or script (Grad-CAM)
 ├── src/
-│   ├── assets/                 # Images, icons, and fonts (e.g., home.jpeg, chip.png)
+│   ├── assets/                 # Images, icons, and fonts
 │   ├── components/             # Reusable UI components
 │   ├── pages/                  # Application screens
 │   │   ├── Chat.tsx
@@ -197,7 +307,7 @@ PlagueHit/
 │   │   ├── Register.tsx
 │   │   └── ResetPassword.tsx
 │   ├── routes/                 # Navigation configuration (routes.tsx)
-│   └── services/               # External services integration
+│   └── services/
 │       └── firebaseConfig.js   # Firebase initialization and setup
 └── package.json                # Project dependencies and scripts
 ```
@@ -206,44 +316,33 @@ PlagueHit/
 
 ## 🚀 Getting Started
 
-Follow the instructions below to set up and run the project in your local development environment.
-
 ### Prerequisites
-
-Before you begin, ensure you have the following installed on your machine:
-*   [Node.js](https://nodejs.org/) (LTS version recommended)
+*   [Node.js](https://nodejs.org/) (LTS recommended)
 *   [Git](https://git-scm.com/)
 *   [Expo CLI](https://docs.expo.dev/get-started/installation/)
-*   A smartphone with the [Expo Go](https://expo.dev/client) app installed (or a configured Android/iOS emulator on your computer).
+*   A smartphone with [Expo Go](https://expo.dev/client) (or an Android/iOS emulator).
 
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/plaguehit.git
+git clone https://github.com/matheus-pestana/plaguehit.git
 cd plaguehit
 ```
 
 ### 2. Install dependencies
 
-You can use either `npm` or `yarn`:
-
 ```bash
-# Using npm
 npm install
-
-# Using yarn
-yarn install
 ```
 
-### 3. Firebase Configuration
+### 3. Configure Firebase
 
-1. Create a new project in the [Firebase Console](https://console.firebase.google.com/).
-2. Enable **Authentication** (Email/Password provider) and **Firestore Database** (or Realtime Database, depending on your preference).
-3. Register a Web App in the Firebase console to generate your configuration keys.
-4. Open the `src/services/firebaseConfig.js` file and replace the placeholder variables with your project's actual credentials:
+1. Create a project in the [Firebase Console](https://console.firebase.google.com/).
+2. Enable **Authentication** (Email/Password) and **Firestore Database** (or Realtime Database).
+3. Register a Web App to get your keys.
+4. Fill in `src/services/firebaseConfig.js` with your project's credentials:
 
 ```javascript
-// Example in src/services/firebaseConfig.js
 import { initializeApp } from "firebase/app";
 
 const firebaseConfig = {
@@ -259,27 +358,34 @@ const app = initializeApp(firebaseConfig);
 export default app;
 ```
 
-### 4. Run the application
-
-Start the Expo development server:
+### 4. Run the app
 
 ```bash
 npx expo start
 ```
 
-*   A QR Code will appear in your terminal and in the Expo DevTools browser window.
-*   Open the **Expo Go** app on your physical device, scan the QR Code, and wait for the app to bundle and load (ensure your phone and computer are connected to the same Wi-Fi network).
+Scan the QR Code with Expo Go (phone and computer on the same Wi-Fi network).
+
+### 5. (Optional) Try the AI model
+
+In Google Colab, place `modelo_pragas_feijao_v2.keras` in your Google Drive, run `ia/diagnostico_gradcam.py` and upload a leaf photo. The output shows the diagnosis, confidence and heatmap.
+
+---
+
+## 👥 Authors
+
+*   **Matheus Pestana** — App development, database and chatbot.
+*   **Luis Augusto Silva** — AI model training, project hardware and AWS EC2 instance.
+*   **Eduardo Couto** — Project design.
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are very welcome! If you'd like to help improve PlagueHit, please follow these steps:
-
 1. **Fork** the project.
-2. Create a new branch for your feature: `git checkout -b feature/my-new-feature`
-3. Commit your changes with a descriptive message: `git commit -m "feat: add amazing new feature"`
-4. Push your branch to your fork: `git push origin feature/my-new-feature`
+2. Create a branch: `git checkout -b feature/my-new-feature`
+3. Commit: `git commit -m "feat: add amazing new feature"`
+4. Push: `git push origin feature/my-new-feature`
 5. Open a **Pull Request**.
 
 ---
